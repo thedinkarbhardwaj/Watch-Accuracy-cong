@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:paddingBottom="20dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_medium"
+        android:text="How to use this app"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Objective of this app is to give you the ability to check accuracy of your wrist watch.
+                      \nOur app has an accurate system watch which is used as the reference.
+"
+        android:textColor="@color/white"
+        android:textSize="14dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="You need to perform following steps to achieve the objective.
+                      \n- Add your Watch
+                      \n- Track Watch
+                      \n- View track history to check watch accuracy
+"
+        android:textColor="@color/white"
+        android:textSize="14dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_medium"
+        android:text="How to Add Watch"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Click on ‘My Watches’ in footer menu.
+                      \nThen click + icon.
+                      \nEnter name of watch.
+                      \nTake picture of the watch.
+                      \nClick ‘Add’.
+                      \nIt will be added in My Watch List."
+        android:textColor="@color/white"
+        android:textSize="14dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_medium"
+        android:text="How to Track Watch"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_regular"
+
+        android:text="\n- Click on ‘My Watches’ in footer menu.
+                      \n- Click on ‘History’ button for the watch.
+                      \n- Tracker screen will open with phone’s camera on and app’s reference watch with only Seconds hand in it.
+                      \n- Start and Restart button is there on tracker screen.
+                      \n- Clicking on Start button will start the tracking and button will change to “Stop”.
+                      \n- Before starting tracking, you need to super impose the app’s reference watch on to your wrist watch.
+                      \n- As soon as your wrist watch’s second hand reaches zero and matches the static second hand of the app you need to start tracking.
+                      \n- After a few hours have passed, when you are ready to stop the tracking, then again, you need to super impose the app’s reference watch on to your wrist watch.
+                      \n- Clicking on “Stop” button will stop the tracking.
+                      \n- When tracking is stopped, a screenshot is taken by the app and is saved in history of the watch.
+                      \n- This screenshot show app’s reference watch along with your wrist watch. It will show time of tracking and elapsed time of tracking.
+                      \n- Based on position of ‘Seconds hand’ of your wrist watch and app’s watch in the screenshot, you can check the accuracy of your watch.
+                      \n- If both are on same position, your watch is accurate.
+"
+        android:textColor="@color/white"
+        android:textSize="14dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_medium"
+        android:text="How to view Tracking History of a Watch"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Click on ‘My Watches’ in footer menu.
+                      \nClick on ‘History’ button for the watch.
+                      \nTracking History of the Watch will be displayed.
+                      \nRecord will show time of tracking and elapsed time of tracking.
+"
+        android:textColor="@color/white"
+        android:textSize="14dp" />
+
+</LinearLayout>
+
+</ScrollView>

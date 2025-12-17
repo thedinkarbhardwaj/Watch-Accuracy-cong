@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#064999</color>
+    <color name="colorPrimaryDark">#064999</color>
+    <color name="colorAccent">#064999</color>
+
+    <color name="colorYellow">#FED64D</color>
+    <color name="colorSkyBlue">#87E6F1</color>
+    <color name="buttonColor">#1A237E</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="darkyellow">#E08010</color>
+    <color name="backgroundColor">#08113A</color>
+    <color name="blue_button_color">#086EC0</color>
+    <color name="bg_green_color">#00c04b</color>
+</resources>

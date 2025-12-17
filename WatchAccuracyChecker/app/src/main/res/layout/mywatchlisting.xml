@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_main.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/name_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"/>
+    <RelativeLayout
+        android:id="@+id/headervalue"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="30dp"
+        android:background="#272E48"
+        android:layout_marginLeft="30dp"
+        android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_gravity="center"
+            android:text="No watches in the list"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:text="Add your first watch"
+            android:gravity="center"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+        <TextView
+
+            android:id="@+id/addAWatchBtn"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:background="@drawable/history_button_background"
+            android:text="Add a Watch"
+            android:fontFamily="@font/poppins_regular"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+    </LinearLayout>
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/add_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="13dp"
+        android:src="@drawable/baseline_add_circle_24"
+        android:layout_marginTop="8dp"/>
+
+
+</RelativeLayout>

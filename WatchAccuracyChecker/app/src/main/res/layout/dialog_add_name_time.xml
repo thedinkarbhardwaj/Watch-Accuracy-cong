@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- dialog_add_name_time.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/backgroundColor"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="5dp"
+        android:layout_toLeftOf="@+id/editBtn"
+        android:layout_toRightOf="@+id/watchimageLAyout"
+        android:fontFamily="@font/poppins_regular"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Add Watch"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
+    <EditText
+        android:id="@+id/dialog_name_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textCapSentences"
+        android:hint="Enter watch name"
+        android:fontFamily="@font/poppins_regular"
+        android:layout_marginTop="10dp"
+        android:textSize="17sp"
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/white"
+        />
+
+
+
+        <ImageView
+            android:id="@+id/insertwatchimage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="start"
+            android:layout_marginTop="10dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/upload_image" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_toRightOf="@+id/watchimageLAyout"
+        android:weightSum="2"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/watchTimeText">
+
+        <TextView
+            android:id="@+id/cancelWatchBtn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/history_button_background"
+            android:fontFamily="@font/poppins_medium"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/addWatchBtn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/track_button_background"
+            android:layout_weight="1"
+            android:text="Add"
+            android:fontFamily="@font/poppins_medium"
+            android:gravity="center"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+    </LinearLayout>
+
+</LinearLayout>

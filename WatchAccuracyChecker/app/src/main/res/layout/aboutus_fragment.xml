@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:orientation="vertical">
+    <ImageView
+        android:layout_width="230dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:src="@drawable/cognitor_logo"
+        android:layout_marginTop="20dp"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Cogniter a multinational team of designers, developers, and digital marketers. Microsoft considers us their Gold Certified Partner and TOPSEOs rates us among the 20 best Pay Per Click management companies from India. \n\nWe are an ISO 9001:2015 certified company with a long history of successfully assisting online businesses with innovative technology. An app we designed in 2015 won the prestigious Top Buyers’ Choice Award at 2015 PGA Fashion and Demo Experience. We have been in the business since 2003 and we are confident that our team of 100 professionals working in the United States, India, Canada, and Panama has the skills your business needs to grow."></TextView>
+
+ <TextView
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:textColor="@color/white"
+     android:layout_marginTop="20dp"
+     android:layout_marginLeft="20dp"
+     android:layout_marginRight="20dp"
+     android:textSize="16dp"
+     android:fontFamily="@font/poppins_regular"
+     android:text="Get your Project Started"/>
+
+    <TextView
+        android:id="@+id/projectWebView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/darkyellow"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="https://www.cogniter.com/requestaquote.aspx"/>
+
+</LinearLayout>
