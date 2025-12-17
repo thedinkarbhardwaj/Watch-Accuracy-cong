@@ -132,8 +132,6 @@ class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
 
         }
 
-
-
         binding.addButton.setOnClickListener {
 
             if (allPermissionsGranted()) {
