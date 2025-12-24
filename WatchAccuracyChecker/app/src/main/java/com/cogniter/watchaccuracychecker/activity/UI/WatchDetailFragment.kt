@@ -2,6 +2,7 @@ package com.cogniter.watchaccuracychecker.activity.UI
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import com.cogniter.watchaccuracychecker.R
 import com.cogniter.watchaccuracychecker.activity.MainActivity
 import com.cogniter.watchaccuracychecker.adapter.CustomAdapater
 import com.cogniter.watchaccuracychecker.database.DBHelper
+import com.cogniter.watchaccuracychecker.databinding.MywatchlistingBinding
 import com.cogniter.watchaccuracychecker.databinding.SettingsFragmentBinding
 import com.cogniter.watchaccuracychecker.databinding.WatchDetailActivityBinding
 import com.cogniter.watchaccuracychecker.model.ListItem
@@ -47,6 +49,8 @@ class WatchDetailFragment : Fragment() ,CustomAdapater.OnDeleteClickListener{
         activity = getActivity()!!
 
         dbHelper = DBHelper(activity)
+        _binding = WatchDetailActivityBinding.inflate(inflater, container, false)
+
 
         (activity as? MainActivity)?.findViewById<TextView>(R.id.nameTextView)?.text = "TRACK HISTORY"
         (activity as? MainActivity)?.findViewById<ImageView>(R.id.backButton)?.visibility = View.VISIBLE
@@ -84,6 +88,8 @@ class WatchDetailFragment : Fragment() ,CustomAdapater.OnDeleteClickListener{
 
             itemList = dbHelper.getAllItems()
               itemList = itemList!!.reversed()
+
+            Log.d("ListofItemsss",itemList.toString())
 
             dbHelper.deleteStringValue()
             dbHelper.deleteLongValue()
@@ -127,7 +133,9 @@ class WatchDetailFragment : Fragment() ,CustomAdapater.OnDeleteClickListener{
         }
 
 
-         imageRecyclerView= view.findViewById(R.id.imageRecyclerView)
+        Log.d("subitemListsubitemList",subitemList.toString())
+//         imageRecyclerView= view.findViewById(R.id.imageRecyclerView)
+         imageRecyclerView= binding.imageRecyclerView
          adapter = CustomAdapater(false,arguments?.getString("watchNAME")!!,activity,subitemList!!)
         imageRecyclerView!!.adapter = adapter
         imageRecyclerView!!.layoutManager = LinearLayoutManager(activity)

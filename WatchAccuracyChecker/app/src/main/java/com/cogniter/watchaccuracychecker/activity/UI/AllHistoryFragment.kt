@@ -43,6 +43,7 @@ class AllHistoryFragment : Fragment(), AlhistoryAdapater.OnallHistoryDeleteClick
         (activity as? MainActivity)?.findViewById<LinearLayout>(R.id.bottomNav)?.visibility = View.VISIBLE
         dbHelper = DBHelper(activity)
 
+
         itemList = dbHelper.getAllItems()
         itemList = itemList?.reversed()
 

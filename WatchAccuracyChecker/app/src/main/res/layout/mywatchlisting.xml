@@ -11,6 +11,8 @@
         android:id="@+id/name_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/add_button"
+        android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"/>
     <RelativeLayout
         android:id="@+id/headervalue"
@@ -63,16 +65,51 @@
     </LinearLayout>
     </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/add_button"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignParentRight="true"
+<!--    <ImageView-->
+<!--        android:id="@+id/add_button"-->
+<!--        android:layout_width="60dp"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_marginRight="15dp"-->
+<!--        android:layout_marginBottom="13dp"-->
+<!--        android:src="@drawable/baseline_add_circle_24"-->
+<!--        android:tooltipText="Add Watch"-->
+<!--        android:layout_marginTop="8dp"/>-->
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="13dp"
-        android:src="@drawable/baseline_add_circle_24"
-        android:layout_marginTop="8dp"/>
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/btn_background"
+        android:layout_marginBottom="16dp"
+        android:paddingVertical="16dp"
+        android:paddingHorizontal="24dp"
+        >
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/outline_add_icon"
+            android:tint="@color/white"
+            android:layout_marginEnd="8dp"/>
+
+    <TextView
+        android:id="@+id/add_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Watch"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+/>
+
+
+
+    </LinearLayout>
 
 
 </RelativeLayout>

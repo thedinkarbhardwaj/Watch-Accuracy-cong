@@ -164,6 +164,7 @@
             android:fontFamily="@font/poppins_medium"
             android:textColor="@color/white"
             android:text="Restart" />
+
         </LinearLayout>
         </LinearLayout>
 

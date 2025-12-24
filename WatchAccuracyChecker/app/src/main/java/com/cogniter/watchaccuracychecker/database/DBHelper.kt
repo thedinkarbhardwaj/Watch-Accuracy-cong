@@ -71,6 +71,15 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
         db.delete(TABLE_SUBITEMS, "$KEY_SUBITEM_ID = ?", arrayOf(subItemId.toString()))
         db.close()
     }
+
+    fun updateElapsedTime(itemId: Long, elapsedTime: Long) {
+        val db = writableDatabase
+        val values = ContentValues()
+        values.put("elapsed_time", elapsedTime)
+        db.update("watch_table", values, "id=?", arrayOf(itemId.toString()))
+    }
+
+
     fun addItem(title: String, image: String, date: String,iswatchrunning: Boolean, subItems: List<Subitem>): Long {
         val db = this.writableDatabase
         val itemValues = ContentValues()
