@@ -1,121 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/full_lay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@android:color/transparent"
-    android:id="@+id/full_lay"
-    >
-
+    android:orientation="vertical">
 
 
     <RelativeLayout
         android:id="@+id/activity_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
 
         <androidx.camera.view.PreviewView
             android:id="@+id/viewFinder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerHorizontal="true" >
+            android:layout_centerHorizontal="true">
 
 
         </androidx.camera.view.PreviewView>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"
-        android:background="#40000000">
-        <TextView
-            android:id="@+id/timeHeader"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="14sp"
-            android:layout_gravity="center_horizontal"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="@color/white"
-            android:text="Frame the Watch dial in the center.\nStart when Watch's second hand hits zero (12)." />
-</LinearLayout>
+            android:layout_height="65dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginRight="10dp"
+            android:background="#40000000">
+
+            <TextView
+                android:id="@+id/timeHeader"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="center"
+                android:text="Frame the Watch dial in the center.\nStart when Watch's second hand hits zero (12)."
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+        </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/transparent_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="200dp"
-            android:background="@android:color/transparent"
-            android:layout_centerHorizontal="true">
+            android:background="@android:color/transparent">
 
             <RelativeLayout
                 android:id="@+id/analogLayout"
                 android:layout_width="300dp"
                 android:layout_height="300dp"
-                android:background="@drawable/scanner"
+                android:layout_centerHorizontal="true"
 
-                android:layout_centerHorizontal="true">
+                android:background="@drawable/scanner">
 
-        <com.cogniter.watchaccuracychecker.activity.AnalogTimerView
-            android:id="@+id/myTimer"
-            android:layout_width="250dp"
-            android:layout_height="300dp"
-            app:one_cycle_ticks="60"
-            android:layout_centerHorizontal="true"
-            app:period_second="1"
-            app:max_time="3"
+                <com.cogniter.watchaccuracychecker.activity.AnalogTimerView
+                    android:id="@+id/myTimer"
+                    android:layout_width="250dp"
+                    android:layout_height="300dp"
+                    android:layout_centerHorizontal="true"
+                    app:max_time="3"
+                    app:one_cycle_ticks="60"
+                    app:period_second="1"
 
 
-            />
+                    />
             </RelativeLayout>
 
             <TextView
                 android:id="@+id/elapsedTimeTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginLeft="7dp"
-                android:textSize="22sp"
-                android:layout_marginTop="40dp"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/white"
                 android:layout_below="@+id/analogLayout"
-                android:text="00:00:00" />
-        <Button
-            android:id="@+id/btn_time"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="00:00:00:00"
-             android:layout_marginTop="200dp"
-            android:visibility="gone"
-            android:textColor="@android:color/black"
-            android:textSize="13sp" />
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="7dp"
+                android:layout_marginTop="40dp"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="center"
+                android:text="00:00:00"
+                android:textColor="@color/white"
+                android:textSize="22sp" />
+
+            <Button
+                android:id="@+id/btn_time"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="200dp"
+                android:text="00:00:00:00"
+                android:textColor="@android:color/black"
+                android:textSize="13sp"
+                android:visibility="gone" />
         </RelativeLayout>
+
         <LinearLayout
             android:layout_width="200dp"
             android:layout_height="110dp"
             android:layout_alignParentBottom="true"
-            android:weightSum="2"
-           android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_centerHorizontal="true"
             android:layout_marginLeft="20dp"
-            android:orientation="vertical">
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="vertical"
+            android:weightSum="2">
+
             <LinearLayout
                 android:id="@+id/btnStartStop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/track_button_background"
-                android:gravity="center"
                 android:layout_marginBottom="5dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="@drawable/track_button_background"
+                android:gravity="center">
 
                 <ImageView
                     android:id="@+id/startStopImg"
@@ -123,55 +125,56 @@
                     android:layout_height="22dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="7dp"
-                    android:src="@drawable/start_button_icon"/>
-        <TextView
-            android:id="@+id/btn_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textSize="20dp"
-            android:layout_marginLeft="7dp"
+                    android:src="@drawable/start_button_icon" />
 
-            android:fontFamily="@font/poppins_medium"
-            android:layout_marginRight="10dp"
-            android:textColor="@color/white"
-            android:text="Start" />
+                <TextView
+                    android:id="@+id/btn_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="7dp"
+                    android:layout_marginRight="10dp"
+
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Start"
+                    android:textColor="@color/white"
+                    android:textSize="20dp" />
 
             </LinearLayout>
-        <LinearLayout
-            android:id="@+id/btnrstart"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/history_button_background"
-            android:gravity="center"
-             android:layout_marginTop="5dp"
-            android:layout_weight="1">
 
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="7dp"
-                android:src="@drawable/restart_button_icon"/>
-        <TextView
-            android:id="@+id/btn_retake"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginLeft="7dp"
-            android:textSize="20dp"
-            android:layout_gravity="center_vertical"
-            android:fontFamily="@font/poppins_medium"
-            android:textColor="@color/white"
-            android:text="Restart" />
+            <LinearLayout
+                android:id="@+id/btnrstart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/history_button_background"
+                android:gravity="center">
 
-        </LinearLayout>
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="7dp"
+                    android:src="@drawable/restart_button_icon" />
+
+                <TextView
+                    android:id="@+id/btn_retake"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="7dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:gravity="center"
+                    android:text="Restart"
+                    android:textColor="@color/white"
+                    android:textSize="20dp" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </RelativeLayout>
-
-
-
 
 
 </LinearLayout>

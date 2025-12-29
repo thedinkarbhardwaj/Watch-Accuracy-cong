@@ -201,13 +201,13 @@ class WatchDetailFragment : Fragment() ,CustomAdapater.OnDeleteClickListener{
 
         dialog.show()
         if(ImageUtils.isDarkModeEnabled(activity)){
-            val buttonColor = ContextCompat.getColor(activity, R.color.white)
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(buttonColor);
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(buttonColor);
+//            val buttonColor = ContextCompat.getColor(activity, R.color.white)
+//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(buttonColor);
+//            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(buttonColor);
         }else{
-            val buttonColor = ContextCompat.getColor(activity, R.color.black)
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(buttonColor);
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(buttonColor);
+//            val buttonColor = ContextCompat.getColor(activity, R.color.black)
+//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(buttonColor);
+//            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(buttonColor);
         }
     }
 }

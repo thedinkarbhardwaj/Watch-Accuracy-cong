@@ -209,9 +209,25 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
 
     }
 
+//    private fun resetTimer() {
+//        binding.elapsedTimeTxt.text = "00:00:00"
+//    }
+
     private fun resetTimer() {
-        binding.elapsedTimeTxt.text = "00:00:00"
+
+        isWatchRunning = false
+        binding.btnStart.text = "Start"
+        binding.startStopImg.setImageResource(R.drawable.start_button_icon)
+
+        dbHelper.updateItemWatchRunning(itemID, false)
+
+        val intent = Intent(activityRef, TimerService::class.java).apply {
+            action = TimerService.ACTION_RESET_TIMER
+            putExtra(TimerService.EXTRA_TIMER_ID, itemID.toInt())
+        }
+        activityRef.startService(intent)
     }
+
 
     // ----------------------------------------------------
     // TIMER RECEIVER
@@ -365,8 +381,10 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
 
         imageBitmap?.let {
             val matrix = Matrix()
-            matrix.postScale(3f, 3f)
-            matrix.postTranslate(100f, 100f)
+//            matrix.postScale(3f, 3f)
+//            matrix.postTranslate(100f, 100f)
+            matrix.postScale(2f, 2f)
+            matrix.postTranslate(500f, 900f)
             canvas.drawBitmap(it, matrix, null)
         }
         return result

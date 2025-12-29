@@ -108,9 +108,13 @@ class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
                 if (granted) openCamera()
-                else Toast.makeText(activityRef, "Camera permission denied", Toast.LENGTH_SHORT).show()
+                else{
+                Toast.makeText(activityRef, "Camera permission denied. To enable it, please go to Settings and allow camera access.", Toast.LENGTH_SHORT).show()
+
             }
     }
+}
+
 
     private fun openCamera() {
         if (ContextCompat.checkSelfPermission(
@@ -279,6 +283,9 @@ class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
             imageUri = Uri.parse(item.watchimage)
             Glide.with(this).load(imageUri).into(insertWatchImage!!)
         }
+
+
+        insertWatchImage!!.setOnClickListener { openCamera() }
 
         view.findViewById<TextView>(R.id.addWatchBtn).apply {
             text = "Update"

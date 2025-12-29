@@ -8,9 +8,11 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.cogniter.watchaccuracychecker.R
 import com.cogniter.watchaccuracychecker.activity.UI.AboutusFragment
 import com.cogniter.watchaccuracychecker.activity.UI.AllHistoryFragment
@@ -18,6 +20,7 @@ import com.cogniter.watchaccuracychecker.activity.UI.ClockFragment
 import com.cogniter.watchaccuracychecker.activity.UI.HelpFragment
 import com.cogniter.watchaccuracychecker.activity.UI.MywatchListing
 import com.cogniter.watchaccuracychecker.activity.UI.SettingsFragment
+import com.cogniter.watchaccuracychecker.activity.UI.WatchDetailFragment
 import com.cogniter.watchaccuracychecker.adapter.DrawerItemCustomAdapter
 import com.cogniter.watchaccuracychecker.database.DBHelper
 import com.cogniter.watchaccuracychecker.databinding.ActivityMainBinding
@@ -262,35 +265,98 @@ class MainActivity : AppCompatActivity(), DrawerItemCustomAdapter.OnItemClickLis
 
     }
 
+//    override fun onBackPressed() {
+//        binding.bottomNav.visibility = View.VISIBLE
+//        val currentFragment = supportFragmentManager.findFragmentById(R.id.container)
+//        val fragmentName = currentFragment?.javaClass?.simpleName
+//
+//
+//        println("Current fragment name: $fragmentName")
+//        if (fragmentName.equals("WatchDetailFragment")) {
+//            val fragmentManager = supportFragmentManager
+//            val count = fragmentManager.backStackEntryCount
+//            for (i in 0 until count) {
+//                fragmentManager.popBackStack()
+//            }
+//            watchlistUI()
+//            return
+//        }
+//
+//        if (fragmentName.equals("MywatchListing") || fragmentName.equals("AboutusFragment") || fragmentName.equals(
+//                "AllHistoryFragment"
+//            )
+//        ) {
+//
+//            return
+//        }
+//
+//
+//        super.onBackPressed()
+//
+//
+//    }
+
+    private var doubleBackToExitPressedOnce = false
+    private val doubleBackHandler = Handler(Looper.getMainLooper())
+
+
     override fun onBackPressed() {
+
         binding.bottomNav.visibility = View.VISIBLE
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.container)
-        val fragmentName = currentFragment?.javaClass?.simpleName
 
+        val currentFragment =
+            supportFragmentManager.findFragmentById(R.id.container)
 
-        println("Current fragment name: $fragmentName")
-        if (fragmentName.equals("WatchDetailFragment")) {
-            val fragmentManager = supportFragmentManager
-            val count = fragmentManager.backStackEntryCount
-            for (i in 0 until count) {
-                fragmentManager.popBackStack()
+        when (currentFragment) {
+
+            is WatchDetailFragment -> {
+                supportFragmentManager.popBackStack(
+                    null,
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE
+                )
+                watchlistUI()
             }
-            watchlistUI()
+
+            is MywatchListing -> {
+                handleDoubleBackExit()
+            }
+
+
+            is AboutusFragment,
+            is AllHistoryFragment -> {
+//                super.onBackPressed()
+                watchlistUI()
+
+            }
+
+            else -> {
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    supportFragmentManager.popBackStack()
+                } else {
+//                    super.onBackPressed()
+                    watchlistUI()
+
+                }
+            }
+        }
+    }
+
+    private fun handleDoubleBackExit() {
+        if (doubleBackToExitPressedOnce) {
+            finish()
             return
         }
 
-        if (fragmentName.equals("MywatchListing") || fragmentName.equals("AboutusFragment") || fragmentName.equals(
-                "AllHistoryFragment"
-            )
-        ) {
+        doubleBackToExitPressedOnce = true
+        Toast.makeText(
+            this,
+            "Press back again to exit",
+            Toast.LENGTH_SHORT
+        ).show()
 
-            return
-        }
-
-
-        super.onBackPressed()
-
-
+        doubleBackHandler.postDelayed({
+            doubleBackToExitPressedOnce = false
+        }, 2000)
     }
 
 
