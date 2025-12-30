@@ -1,8 +1,10 @@
 package com.cogniter.watchaccuracychecker.activity.UI
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,204 +12,195 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cogniter.watchaccuracychecker.R
 import com.cogniter.watchaccuracychecker.activity.MainActivity
 import com.cogniter.watchaccuracychecker.adapter.CustomAdapater
-import com.cogniter.watchaccuracychecker.database.DBHelper
-import com.cogniter.watchaccuracychecker.databinding.MywatchlistingBinding
-import com.cogniter.watchaccuracychecker.databinding.SettingsFragmentBinding
+import com.cogniter.watchaccuracychecker.database.AppDatabase
 import com.cogniter.watchaccuracychecker.databinding.WatchDetailActivityBinding
-import com.cogniter.watchaccuracychecker.model.ListItem
 import com.cogniter.watchaccuracychecker.model.Subitem
 import com.cogniter.watchaccuracychecker.service.TimerService
-import com.cogniter.watchaccuracychecker.utills.GlobalVariables
-import com.cogniter.watchaccuracychecker.utills.ImageUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-
-class WatchDetailFragment : Fragment() ,CustomAdapater.OnDeleteClickListener{
+class WatchDetailFragment : Fragment(), CustomAdapater.OnDeleteClickListener {
 
     private var _binding: WatchDetailActivityBinding? = null
     private val binding get() = _binding!!
-    private lateinit var dbHelper: DBHelper
-    var subitemList: List<Subitem>? = null
-    lateinit var activity: Activity
+    private lateinit var activityRef: Activity
 
-    var imageRecyclerView: RecyclerView? = null
-    var adapter:CustomAdapater ? = null
-    var itemList: List<ListItem>? = null
+    private var subitemList: MutableList<Subitem> = mutableListOf()
+    private lateinit var adapter: CustomAdapater
+
+    private val database by lazy {
+        AppDatabase.getDatabase(requireContext())
+    }
+
+    private val storagePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                loadSubItems()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Storage permission is required to load history",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.watch_detail_activity, container, false)
-        activity = getActivity()!!
-
-        dbHelper = DBHelper(activity)
+    ): View {
         _binding = WatchDetailActivityBinding.inflate(inflater, container, false)
+        activityRef = requireActivity()
 
+        setupUI()
+        setupRecyclerView()
 
-        (activity as? MainActivity)?.findViewById<TextView>(R.id.nameTextView)?.text = "TRACK HISTORY"
-        (activity as? MainActivity)?.findViewById<ImageView>(R.id.backButton)?.visibility = View.VISIBLE
-        (activity as? MainActivity)?.findViewById<LinearLayout>(R.id.bottomNav)?.visibility = View.VISIBLE
+        setupAddTimerButton()
 
-        subitemList = dbHelper.getSubItemsForItem(arguments?.getLong("itemID",0)!!)
-        binding.watchName.text = arguments?.getString("watchNAME")!!
-        // Check if the subitemList is not null and not empty
-        subitemList?.let { list ->
-            if (list.isNotEmpty()) {
-                val mutableList = list.toMutableList()  // Convert to mutable list
-                mutableList.removeAt(0)  // Remove the first item
-                subitemList = mutableList.toList()  // Convert back to immutable list
-            }
-        }
-        subitemList = subitemList?.reversed()
-
-
-        if(subitemList!!.size==0){
-            binding.notrackingheader.visibility= View.VISIBLE
-
-        }else{
-            binding.notrackingheader.visibility= View.GONE
-
-
-        }
-
-
-
-        // Set the tooltip message
-
-
-        binding.addTimer.setOnClickListener {
-           val isServiceRunning = TimerService.isServiceRunning(activity, TimerService::class.java)
-
-            itemList = dbHelper.getAllItems()
-              itemList = itemList!!.reversed()
-
-            Log.d("ListofItemsss",itemList.toString())
-
-            dbHelper.deleteStringValue()
-            dbHelper.deleteLongValue()
-            dbHelper.setStringValue(arguments?.getString("watchNAME")!!)
-            dbHelper.setLongValue(arguments?.getLong("itemID",0)!!)
-
-            System.out.println(isServiceRunning!!.toString()+"  lpddlddddddddddddd  "+arguments?.getBoolean("isrunning")!!)
-
-         //   if(arguments?.getBoolean("isrunning")!! && isServiceRunning!! || !arguments?.getBoolean("isrunning")!! && !isServiceRunning!!){
-                val activity = requireActivity() as MainActivity
-                activity.openFragmentWithBudelData(arguments?.getLong("itemID",0)!!, arguments?.getString("watchNAME")!!, ClockFragment(),"ClockActivity",arguments?.getBoolean("isrunning")!!)
-
-//            }else  if(!arguments?.getBoolean("isrunning")!! && isServiceRunning!!){
-//                var watchName=""
-//                itemList?.forEach {
-//                        item1 ->
-//                    if (item1.isrunning) {
-//                        // Found the running item
-//                        watchName = item1.title
-//                    }
-//                }
-//                Toast.makeText(activity,"Tracking for $watchName Watch is on.",Toast.LENGTH_SHORT).show()
-//               // Toast.makeText(activity,watchName+" watch is running...",Toast.LENGTH_SHORT).show()
-//
-//            }
-//                if(!arguments?.getBoolean("isrunning")!! && isServiceRunning!!){
-//                    itemList?.forEach {
-//                            item ->
-//                        if (item.isrunning) {
-//                            // Found the running item
-//                            Toast.makeText(activity,item.title+" watch is running...",Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
-//
-//                }else{
-//                    val activity = requireActivity() as MainActivity
-//                    activity.openFragmentWithBudelData(  arguments?.getLong("itemID",0)!!,
-//                        arguments?.getString("watchNAME")!!, ClockFragment(),"ClockActivity",arguments?.getBoolean("isrunning")!!)
-//                }
-
-        }
-
-
-        Log.d("subitemListsubitemList",subitemList.toString())
-//         imageRecyclerView= view.findViewById(R.id.imageRecyclerView)
-         imageRecyclerView= binding.imageRecyclerView
-         adapter = CustomAdapater(false,arguments?.getString("watchNAME")!!,activity,subitemList!!)
-        imageRecyclerView!!.adapter = adapter
-        imageRecyclerView!!.layoutManager = LinearLayoutManager(activity)
-
-        imageRecyclerView!!.adapter = adapter
-        adapter!!.setOnDeleteClickListener(this)
+        checkStoragePermissionAndLoad()
 
         return binding.root
-
     }
 
+    private fun checkStoragePermissionAndLoad() {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
 
-    override fun OnDeleteClickListener(subitem: Subitem, i: Int) {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                permission
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                loadSubItems()
+            }
 
-        deleteItemDialog(subitem)
+            shouldShowRequestPermissionRationale(permission) -> {
+                showStoragePermissionDialog(permission)
+            }
+
+            else -> {
+                storagePermissionLauncher.launch(permission)
+            }
+        }
     }
-    fun deleteItemDialog(subitem: Subitem) {
 
-        val dialog = AlertDialog.Builder(activity)
+    private fun showStoragePermissionDialog(permission: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Storage Permission Required")
+            .setMessage("We need storage access to load watch history images.")
+            .setCancelable(false)
+            .setPositiveButton("Allow") { _, _ ->
+                storagePermissionLauncher.launch(permission)
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun setupUI() {
+        (activityRef as MainActivity).findViewById<TextView>(R.id.nameTextView).text =
+            "TRACK HISTORY"
+        (activityRef as MainActivity).findViewById<ImageView>(R.id.backButton).visibility =
+            View.VISIBLE
+        (activityRef as MainActivity).findViewById<LinearLayout>(R.id.bottomNav).visibility =
+            View.VISIBLE
+
+        binding.watchName.text = arguments?.getString("watchNAME") ?: "Unknown Watch"
+    }
+
+    private fun setupRecyclerView() {
+        adapter = CustomAdapater(
+            false,
+            arguments?.getString("watchNAME") ?: "",
+            activityRef,
+            subitemList
+        )
+        binding.imageRecyclerView.layoutManager = LinearLayoutManager(activityRef)
+        binding.imageRecyclerView.adapter = adapter
+        adapter.setOnDeleteClickListener(this)
+    }
+
+    private fun loadSubItems() {
+        val watchId = arguments?.getLong("itemID") ?: return
+
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                database.watchDao().getWatchWithSubItemsById(watchId)
+            }
+
+            subitemList.clear()
+
+            result?.subItems
+                ?.drop(1) // remove first dummy item
+                ?.reversed()
+                ?.forEach {
+                    subitemList.add(
+                        Subitem(
+                            subitemId = it.id,
+                            image = it.image,
+                            name = it.name,
+                            date = it.date
+                        )
+                    )
+                }
+
+            binding.notrackingheader.visibility =
+                if (subitemList.isEmpty()) View.VISIBLE else View.GONE
+
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun setupAddTimerButton() {
+        binding.addTimer.setOnClickListener {
+            val watchId = arguments?.getLong("itemID") ?: return@setOnClickListener
+            val watchName = arguments?.getString("watchNAME") ?: ""
+            val isRunning = arguments?.getBoolean("isrunning") ?: false
+
+            (activityRef as MainActivity).openFragmentWithBudelData(
+                watchId,
+                watchName,
+                ClockFragment(),
+                "ClockActivity",
+                isRunning
+            )
+        }
+    }
+
+    override fun OnDeleteClickListener(subitem: Subitem, position: Int) {
+        AlertDialog.Builder(activityRef)
             .setTitle("Delete")
             .setMessage("Are you sure to delete the record?")
             .setPositiveButton("Yes") { _, _ ->
-                dbHelper.removeSubItem(subitem.subitemId)
-
-                subitemList = emptyList()
-                subitemList = dbHelper.getSubItemsForItem(arguments?.getLong("itemID",0)!!)
-
-                // Check if the subitemList is not null and not empty
-                subitemList?.let { list ->
-                    if (list.isNotEmpty()) {
-                        val mutableList = list.toMutableList()  // Convert to mutable list
-                        mutableList.removeAt(0)  // Remove the first item
-                        subitemList = mutableList.toList()  // Convert back to immutable list
-                    }
+                lifecycleScope.launch(Dispatchers.IO) {
+                    database.watchDao().deleteSubItem(subitem.subitemId)
                 }
-                subitemList = subitemList?.reversed()
-
-
-//                if(subitemList!!.size==0){
-//                    view.notrackingheader.visibility= View.VISIBLE
-//                }else{
-//                    notrackingheader.visibility= View.GONE
-//                }
-
-
-                 adapter = CustomAdapater(
-                     false,
-                     arguments?.getString("watchNAME")!!,
-                     activity,
-                     subitemList!!
-                 )
-                imageRecyclerView!!.adapter = adapter
-                imageRecyclerView!!.layoutManager = LinearLayoutManager(activity)
-
-                imageRecyclerView!!.adapter = adapter
-                adapter!!.setOnDeleteClickListener(this)
-                Toast.makeText(activity,"Record deleted successfully.", Toast.LENGTH_LONG).show()
+                subitemList.removeAt(position)
+                adapter.notifyItemRemoved(position)
+                Toast.makeText(activityRef, "Deleted successfully", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
+            .setNegativeButton("No", null)
+            .show()
+    }
 
-        dialog.show()
-        if(ImageUtils.isDarkModeEnabled(activity)){
-//            val buttonColor = ContextCompat.getColor(activity, R.color.white)
-//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(buttonColor);
-//            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(buttonColor);
-        }else{
-//            val buttonColor = ContextCompat.getColor(activity, R.color.black)
-//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(buttonColor);
-//            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(buttonColor);
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

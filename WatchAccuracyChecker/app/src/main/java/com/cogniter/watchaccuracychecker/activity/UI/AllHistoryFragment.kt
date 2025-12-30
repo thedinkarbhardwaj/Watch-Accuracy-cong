@@ -9,122 +9,150 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
-
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cogniter.watchaccuracychecker.R
 import com.cogniter.watchaccuracychecker.activity.MainActivity
-import com.cogniter.watchaccuracychecker.adapter.AlhistoryAdapater
-
-import com.cogniter.watchaccuracychecker.database.DBHelper
-import com.cogniter.watchaccuracychecker.model.ListItem
-import com.cogniter.watchaccuracychecker.model.Subitem
+import com.cogniter.watchaccuracychecker.adapter.AlHistoryAdapter
+import com.cogniter.watchaccuracychecker.database.AppDatabase
+import com.cogniter.watchaccuracychecker.database.entity.SubItemEntity
+import com.cogniter.watchaccuracychecker.database.entity.WatchWithSubItems
 import com.cogniter.watchaccuracychecker.utills.ImageUtils
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 
-class AllHistoryFragment : Fragment(), AlhistoryAdapater.OnallHistoryDeleteClickListener{
-    private lateinit var dbHelper: DBHelper
-    var itemList: List<ListItem>? = null
-    lateinit var activity: Activity
+class AllHistoryFragment : Fragment(), AlHistoryAdapter.OnAllHistoryDeleteClickListener {
 
-    var imageRecyclerView: RecyclerView? = null
-    var adapter:AlhistoryAdapater ? = null
+    private lateinit var activityRef: Activity
+    private var watchList: List<WatchWithSubItems> = emptyList()
+    private var adapter: AlHistoryAdapter? = null
+    private var recyclerView: RecyclerView? = null
+    private lateinit var database: AppDatabase
+
+    private val storagePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                loadWatchHistoryFromRoom()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Storage permission is required to load history",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val view = inflater.inflate(R.layout.qll_history_detail_activity, container, false)
-        activity = getActivity()!!
-        (activity as? MainActivity)?.findViewById<ImageView>(R.id.backButton)?.visibility = View.GONE
-        (activity as? MainActivity)?.findViewById<LinearLayout>(R.id.bottomNav)?.visibility = View.VISIBLE
-        dbHelper = DBHelper(activity)
+        activityRef = requireActivity()
+        database = AppDatabase.getDatabase(activityRef)
 
+        // Hide back button and show bottom nav
+        (activityRef as? MainActivity)?.findViewById<ImageView>(R.id.backButton)?.visibility =
+            View.GONE
+        (activityRef as? MainActivity)?.findViewById<LinearLayout>(R.id.bottomNav)?.visibility =
+            View.VISIBLE
 
-        itemList = dbHelper.getAllItems()
-        itemList = itemList?.reversed()
+        setupRecyclerView(view)
+//        loadWatchHistoryFromRoom()
 
+        checkStoragePermissionAndLoad()
 
-//        if(itemList!!.size==0){
-//            view.notrackingheader.visibility= View.VISIBLE
-//
-//        }else{
-//
-//            if(itemList!!.size>0 ){
-//
-//            }
-//
-//            view.notrackingheader.visibility= View.GONE
-//
-//        }
-
-
-         imageRecyclerView= view.findViewById(R.id.imageRecyclerView)
-         adapter = AlhistoryAdapater(activity,itemList!!)
-        imageRecyclerView!!.adapter = adapter
-        imageRecyclerView!!.layoutManager = LinearLayoutManager(activity)
-
-        imageRecyclerView!!.adapter = adapter
-        adapter!!.setOnallHistoryDeleteClickListener(this)
 
         return view
     }
 
-    override fun OnallHistoryDelete(name: Subitem, i: Int) {
-        deleteItemDialog(name)
+    private fun checkStoragePermissionAndLoad() {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                permission
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                loadWatchHistoryFromRoom()
+            }
+
+            shouldShowRequestPermissionRationale(permission) -> {
+                showStoragePermissionDialog(permission)
+            }
+
+            else -> {
+                storagePermissionLauncher.launch(permission)
+            }
+        }
     }
 
-    fun deleteItemDialog(subitem: Subitem) {
+    private fun showStoragePermissionDialog(permission: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Storage Permission Required")
+            .setMessage("We need storage access to load watch history images.")
+            .setCancelable(false)
+            .setPositiveButton("Allow") { _, _ ->
+                storagePermissionLauncher.launch(permission)
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
 
-        val dialog = AlertDialog.Builder(activity)
+
+    private fun setupRecyclerView(view: View) {
+        recyclerView = view.findViewById(R.id.imageRecyclerView)
+        adapter = AlHistoryAdapter(activityRef, watchList)
+        recyclerView?.layoutManager = LinearLayoutManager(activityRef)
+        recyclerView?.adapter = adapter
+        adapter?.setOnAllHistoryDeleteClickListener(this)
+    }
+
+    private fun loadWatchHistoryFromRoom() {
+        // Using coroutine to collect Flow from Room
+        lifecycleScope.launch {
+            database.watchDao().getWatchesWithSubItems().collect { watches ->
+                watchList = watches.reversed() // Latest first
+                adapter?.updateList(watchList)
+            }
+        }
+    }
+
+    override fun onAllHistoryDelete(subItem: SubItemEntity) {
+        deleteItemDialog(subItem)
+    }
+
+    private fun deleteItemDialog(subItem: SubItemEntity) {
+        AlertDialog.Builder(activityRef)
             .setTitle("Delete")
             .setMessage("Are you sure to delete the record?")
             .setPositiveButton("Yes") { _, _ ->
-                dbHelper.removeSubItem(subitem.subitemId)
-
-                itemList = emptyList()
-                itemList = dbHelper.getAllItems()
-                itemList = itemList?.reversed()
-
-
-//                if(itemList!!.size==0){
-//                    view!!.notrackingheader.visibility= View.VISIBLE
-//
-//                }else{
-//                    view!!.notrackingheader.visibility= View.GONE
-//
-//
-//                }
-                System.out.println("derrpdlpdld "+itemList!!.size)
-
-                imageRecyclerView= view!!.findViewById(R.id.imageRecyclerView)
-                adapter = AlhistoryAdapater(activity,itemList!!)
-                imageRecyclerView!!.adapter = adapter
-                imageRecyclerView!!.layoutManager = LinearLayoutManager(activity)
-
-                imageRecyclerView!!.adapter = adapter
-                adapter!!.setOnallHistoryDeleteClickListener(this)
-                Toast.makeText(activity,"Record deleted successfully.", Toast.LENGTH_LONG).show()
+                lifecycleScope.launch {
+                    database.watchDao().deleteSubItem(subItem.id)
+                    Toast.makeText(activityRef, "Record deleted successfully.", Toast.LENGTH_LONG).show()
+                }
             }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
             .create()
+            .show()
 
-        dialog.show()
-
-        if(ImageUtils.isDarkModeEnabled(activity)){
-//            val buttonColor = ContextCompat.getColor(activity, R.color.white)
-//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(buttonColor);
-//            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(buttonColor);
-        }else{
-//            val buttonColor = ContextCompat.getColor(activity, R.color.black)
-//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(buttonColor);
-//            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(buttonColor);
+        if (ImageUtils.isDarkModeEnabled(activityRef)) {
+            // Optional: customize dialog button colors for dark mode
         }
-
     }
 }

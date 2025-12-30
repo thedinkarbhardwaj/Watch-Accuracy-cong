@@ -8,85 +8,90 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cogniter.watchaccuracychecker.R
-import com.cogniter.watchaccuracychecker.model.ListItem
-import com.cogniter.watchaccuracychecker.model.Subitem
+import com.cogniter.watchaccuracychecker.database.entity.SubItemEntity
+import com.cogniter.watchaccuracychecker.database.entity.WatchWithSubItems
+import com.cogniter.watchaccuracychecker.adapter.CustomAdapater
 
-class AlhistoryAdapater(private val context: Context, private val itemList: List<ListItem>) : RecyclerView.Adapter<AlhistoryAdapater.ImageViewHolder>() ,CustomAdapater.OnDeleteClickListener{
-    var adapter:CustomAdapater ? = null
-    var subitemList: List<Subitem>? = null
+class AlHistoryAdapter(
+    private val context: Context,
+    private var watchList: List<WatchWithSubItems>
+) : RecyclerView.Adapter<AlHistoryAdapter.WatchViewHolder>(), CustomAdapater.OnDeleteClickListener {
 
-    // Define the interface for click events
-    interface OnallHistoryDeleteClickListener {
-        fun OnallHistoryDelete(name: Subitem, i: Int)
+    private var onAllHistoryDeleteClickListener: OnAllHistoryDeleteClickListener? = null
+
+    interface OnAllHistoryDeleteClickListener {
+        fun onAllHistoryDelete(subItem: SubItemEntity)
     }
 
-    // Add a property to hold the listener
-    private var onallHistoryDeleteClickListener: OnallHistoryDeleteClickListener? = null
-
-    // Method to set the listener from the activity
-    fun setOnallHistoryDeleteClickListener(listener: OnallHistoryDeleteClickListener) {
-        onallHistoryDeleteClickListener = listener
-    }
-    inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        val historywatchName: TextView = itemView.findViewById(R.id.historywatchName)
-        val subitemRecylerview: RecyclerView = itemView.findViewById(R.id.subitemRecylerview)
-
-
+    fun setOnAllHistoryDeleteClickListener(listener: OnAllHistoryDeleteClickListener) {
+        onAllHistoryDeleteClickListener = listener
     }
 
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.all_history_adpater_items, parent, false)
-        return ImageViewHolder(view)
+    inner class WatchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val watchNameTextView: TextView = itemView.findViewById(R.id.historywatchName)
+        val subItemRecyclerView: RecyclerView = itemView.findViewById(R.id.subitemRecylerview)
     }
 
-    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WatchViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.all_history_adpater_items, parent, false)
+        return WatchViewHolder(view)
+    }
 
+    override fun onBindViewHolder(holder: WatchViewHolder, position: Int) {
+        val currentWatch = watchList[position]
+        holder.watchNameTextView.text = currentWatch.watch.title
 
-        holder.historywatchName.text = itemList[position].title
+        // Get subitems from Room entity
+        var subItemList: List<SubItemEntity> = currentWatch.subItems ?: emptyList()
 
+        // Remove first placeholder item if needed
+        if (subItemList.isNotEmpty()) {
+            subItemList = subItemList.drop(1).reversed()
+        }
 
-        subitemList=itemList[position].subItems!!
-        subitemList?.let { list ->
-            if (list.isNotEmpty()) {
-                val mutableList = list.toMutableList()  // Convert to mutable list
-                mutableList.removeAt(0)  // Remove the first item
-                subitemList = mutableList.toList()  // Convert back to immutable list
+        holder.watchNameTextView.visibility = if (subItemList.isEmpty()) View.GONE else View.VISIBLE
+
+        // Add top margin for items after first
+        if (position > 0) {
+            val params = holder.watchNameTextView.layoutParams as ViewGroup.MarginLayoutParams
+            params.setMargins(0, 20, 0, 0)
+            holder.watchNameTextView.layoutParams = params
+        }
+
+        // Convert SubItemEntity to Subitem model for CustomAdapter
+        val subItemModelList = subItemList.map { entity ->
+            com.cogniter.watchaccuracychecker.model.Subitem(
+                subitemId = entity.id ?: 0L,
+                name = entity.name ?: "",
+                image = entity.image ?: "",
+                date = entity.date ?: ""
+            )
+        }
+
+        // Setup nested RecyclerView for subitems
+        val subAdapter = CustomAdapater(true, currentWatch.watch.title, context, subItemModelList)
+        holder.subItemRecyclerView.layoutManager = LinearLayoutManager(context)
+        holder.subItemRecyclerView.adapter = subAdapter
+
+        // Handle delete click from subAdapter
+        subAdapter.setOnDeleteClickListener(object : CustomAdapater.OnDeleteClickListener {
+            override fun OnDeleteClickListener(name: com.cogniter.watchaccuracychecker.model.Subitem, i: Int) {
+                // Find corresponding SubItemEntity
+                val entity = subItemList[i]
+                onAllHistoryDeleteClickListener?.onAllHistoryDelete(entity)
             }
-        }
-        subitemList = subitemList?.reversed()
-
-        if(subitemList!!.size==0){
-            holder.historywatchName.visibility=View.GONE
-
-        }else{
-            holder.historywatchName.visibility=View.VISIBLE
-        }
-        if(position>0){
-            val params = holder.historywatchName.layoutParams as ViewGroup.MarginLayoutParams
-            params.setMargins(0, 20, 0, 0) // Here, 50 is the margin from the top
-            holder.historywatchName.layoutParams = params
-        }
-
-        adapter = CustomAdapater(
-            true,
-            itemList[position].title,
-            context,
-            subitemList!!
-        )
-        holder.subitemRecylerview!!.adapter = adapter
-        holder.subitemRecylerview!!!!.layoutManager = LinearLayoutManager(context)
-
-        holder.subitemRecylerview!!!!.adapter = adapter
-
-        adapter!!.setOnDeleteClickListener(this)
-
-    }
-    override fun getItemCount() = itemList.size
-    override fun OnDeleteClickListener(name: Subitem, i: Int) {
-        onallHistoryDeleteClickListener!!.OnallHistoryDelete(name,i)
+        })
     }
 
+    override fun getItemCount(): Int = watchList.size
 
+    fun updateList(newList: List<WatchWithSubItems>) {
+        watchList = newList
+        notifyDataSetChanged()
+    }
+
+    override fun OnDeleteClickListener(name: com.cogniter.watchaccuracychecker.model.Subitem, i: Int) {
+        // Not used here; handled in nested adapter
+    }
 }

@@ -99,6 +99,19 @@
             android:textColor="@color/white"
             android:textSize="14sp" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTimerrrr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/nameTextView"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:text="00:00:00"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+
         <RelativeLayout
             android:id="@+id/editBtn"
             android:layout_width="40dp"
@@ -113,6 +126,8 @@
                 android:layout_centerHorizontal="true"
                 android:src="@drawable/baseline_border_color_24"
                 app:tint="@color/white" />
+
+
 
         </RelativeLayout>
 

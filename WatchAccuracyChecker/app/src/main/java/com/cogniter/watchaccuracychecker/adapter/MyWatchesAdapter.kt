@@ -1,111 +1,118 @@
 package com.cogniter.watchaccuracychecker.adapter
 
-// NameAdapter.kt
-import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.cogniter.watchaccuracychecker.R
-import com.cogniter.watchaccuracychecker.model.ListItem
-
+import com.cogniter.watchaccuracychecker.database.entity.WatchEntity
 
 class MyWatchesAdapter(
-    private var nameList: List<ListItem>,
     private val context: Context
-) : RecyclerView.Adapter<MyWatchesAdapter.NameViewHolder>() {
+) : ListAdapter<WatchEntity, MyWatchesAdapter.NameViewHolder>(DIFF_CALLBACK) {
 
-    // Define the interface for click events
     interface OnImageClickListener {
-        fun onImageClick(name: ListItem, i: Int)
+        fun onImageClick(item: WatchEntity, action: Int)
     }
 
-    // Add a property to hold the listener
-    private var imageClickListener: OnImageClickListener? = null
+    private var listener: OnImageClickListener? = null
 
-    // Method to set the listener from the activity
-    fun setOnImageClickListener(listener: OnImageClickListener) {
-        imageClickListener = listener
+    fun setOnImageClickListener(l: OnImageClickListener) {
+        listener = l
     }
 
-    class NameViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    companion object {
+        private val DIFF_CALLBACK =
+            object : DiffUtil.ItemCallback<WatchEntity>() {
+                override fun areItemsTheSame(
+                    oldItem: WatchEntity,
+                    newItem: WatchEntity
+                ): Boolean = oldItem.id == newItem.id
+
+                override fun areContentsTheSame(
+                    oldItem: WatchEntity,
+                    newItem: WatchEntity
+                ): Boolean = oldItem == newItem
+            }
+    }
+
+    inner class NameViewHolder(itemView: View) :
+        RecyclerView.ViewHolder(itemView) {
+
+        val tvTimer: TextView = itemView.findViewById(R.id.tvTimerrrr)
         val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
         val watchTimeText: TextView = itemView.findViewById(R.id.watchTimeText)
-        val watchimage : ImageView = itemView.findViewById(R.id.watchimage)
+        val watchImage: ImageView = itemView.findViewById(R.id.watchimage)
         val deleteBtn: RelativeLayout = itemView.findViewById(R.id.deleteBtn)
         val editBtn: RelativeLayout = itemView.findViewById(R.id.editBtn)
         val historyBtn: TextView = itemView.findViewById(R.id.historyBtn)
         val trackBtn: TextView = itemView.findViewById(R.id.trackBtn)
-        val trackingprogress :View =itemView.findViewById(R.id.trackingprogress)
-
+        val trackingProgress: View = itemView.findViewById(R.id.trackingprogress)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NameViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.mywacthes_adapter, parent, false)
-        return NameViewHolder(itemView)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.mywacthes_adapter, parent, false)
+        return NameViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: NameViewHolder, position: Int) {
-        val currentItem = nameList[position]
-        holder.nameTextView.text = currentItem.title
+        val item = getItem(position)
 
-        if(currentItem.isrunning){
-            holder.trackingprogress.visibility =View.VISIBLE
+        holder.nameTextView.text = item.title
+        holder.watchTimeText.text = item.addedWatchTime
+
+        holder.trackingProgress.visibility =
+            if (item.isWatchRunning) View.VISIBLE else View.GONE
+
+        holder.tvTimer.visibility =
+            if (item.isWatchRunning) View.VISIBLE else View.GONE
+
+        if (item.isWatchRunning) {
+            holder.trackBtn.setText("Tracking")
+            holder.trackBtn.setBackgroundResource(R.drawable.tracking_background)
         }else{
-            holder.trackingprogress.visibility =View.GONE
-        }
+            holder.trackBtn.setText("Track")
 
-
-        if(currentItem.subItems.size>1){
-            holder.watchTimeText.text =currentItem.subItems.last().date
-        }else{
-            holder.watchTimeText.text =currentItem.addedWatchTime
-        }
-
-        try{
-
-            if(currentItem.watchimage.isNotEmpty()){
-                Glide.with(context)
-                    .load(Uri.parse(currentItem.watchimage))
-                    .into(holder.watchimage)
-            }
-
-                // Use Glide to load the image into the ImageView
-
-        }catch ( e : Exception){
+            holder.trackBtn.setBackgroundResource(R.drawable.track_button_background)
 
         }
 
-        holder.watchimage.setOnClickListener {
-            imageClickListener?.onImageClick(nameList[position],0)
+
+        if (item.watchImage.isNotEmpty()) {
+            Glide.with(context)
+                .load(Uri.parse(item.watchImage))
+                .into(holder.watchImage)
+        } else {
+            holder.watchImage.setImageResource(R.drawable.app_icon) // optional
         }
-        holder.trackBtn.setOnClickListener(View.OnClickListener { view ->
-            // Notify the activity when an image is clicked
-            imageClickListener?.onImageClick(nameList[position],3)
-        })
-        holder.deleteBtn.setOnClickListener {
-            imageClickListener?.onImageClick(nameList[position],2)
+
+        holder.watchImage.setOnClickListener {
+            listener?.onImageClick(item, 0)
         }
+
         holder.editBtn.setOnClickListener {
-            imageClickListener?.onImageClick(nameList[position],1)
+            listener?.onImageClick(item, 1)
         }
-        holder.historyBtn.setOnClickListener(View.OnClickListener { view ->
-            // Notify the activity when an image is clicked
-            imageClickListener?.onImageClick(nameList[position],0)
-        })
 
+        holder.deleteBtn.setOnClickListener {
+            listener?.onImageClick(item, 2)
+        }
 
+        holder.trackBtn.setOnClickListener {
+            listener?.onImageClick(item, 3)
+        }
 
+        holder.historyBtn.setOnClickListener {
+            listener?.onImageClick(item, 4)
+        }
     }
-
-    override fun getItemCount() = nameList.size
-
-
 }
