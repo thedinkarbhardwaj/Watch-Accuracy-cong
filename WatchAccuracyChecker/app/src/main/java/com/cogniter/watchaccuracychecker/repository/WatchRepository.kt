@@ -1,6 +1,7 @@
 package com.cogniter.watchaccuracychecker.repository
 
 import androidx.lifecycle.LiveData
+import androidx.room.Query
 import com.cogniter.watchaccuracychecker.database.WatchDao
 import com.cogniter.watchaccuracychecker.database.entity.*
 import kotlinx.coroutines.flow.Flow
@@ -69,4 +70,19 @@ class WatchRepository(
 //            )
 //        }
 //    }
+
+    suspend fun updateTimer(
+        watchId: Long,
+        elapsed: Long,
+        isRunning: Boolean
+    ) {
+        dao.updateTimer(watchId, elapsed, isRunning)
+    }
+
+    suspend fun stopAllRunningWatchesOnAppStart() {
+        dao.stopAllRunningWatches(System.currentTimeMillis())
+    }
+
+
+
 }

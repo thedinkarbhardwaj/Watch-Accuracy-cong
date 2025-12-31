@@ -147,7 +147,7 @@ class WatchDetailFragment : Fragment(), CustomAdapater.OnDeleteClickListener {
             subitemList.clear()
 
             result?.subItems
-                ?.drop(1) // remove first dummy item
+                ?.drop(0) // remove first dummy item
                 ?.reversed()
                 ?.forEach {
                     subitemList.add(

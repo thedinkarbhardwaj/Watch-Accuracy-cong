@@ -33,6 +33,6 @@ data class WatchEntity(
     val isWatchRunning: Boolean = false,
 
     // Important for background-safe tracking
-    val startTimeMillis: Long? = null,
-    val elapsedTimeMillis: Long = 0
+    var startTimeMillis: Long? = null,
+    var elapsedTimeMillis: Long = 0
 )

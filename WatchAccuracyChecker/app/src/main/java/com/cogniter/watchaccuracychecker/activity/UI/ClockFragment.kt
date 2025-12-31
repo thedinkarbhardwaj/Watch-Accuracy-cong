@@ -2,25 +2,31 @@ package com.cogniter.watchaccuracychecker.activity.UI
 
 import android.Manifest
 import android.app.Activity
-import android.content.*
-import android.content.pm.PackageManager
+import android.content.BroadcastReceiver
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.*
 import android.media.ExifInterface
 import android.media.MediaPlayer
-import android.os.*
+import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.appcompat.app.AlertDialog
-import androidx.camera.core.*
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -120,6 +126,7 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         updateStartStopUI()
         binding.myTimer.setTimerListener(this)
 
+        // No storage permission check needed anymore
         binding.btnStartStop.setOnClickListener {
             if (isWatchRunning) stopTimer() else startTimer()
         }
@@ -147,7 +154,12 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         isWatchRunning = true
         updateStartStopUI()
 
-        watchViewModel.startWatch(itemID)
+        // Save running state + start time
+        watchViewModel.updateRunningState(
+            watchId = itemID,
+            isRunning = true,
+            startTime = System.currentTimeMillis()
+        )
 
         val intent = Intent(activityRef, TimerService::class.java).apply {
             action = TimerService.ACTION_START_TIMER
@@ -161,7 +173,21 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         isWatchRunning = false
         updateStartStopUI()
 
-        watchViewModel.stopWatch(itemID)
+        // Calculate final elapsed time
+        val elapsedMillis = parseTimeToMillis(testElapsedTime)
+
+        // Save final time + stop state
+        watchViewModel.updateElapsedTime(
+            id = itemID.toInt(),
+            elapsed = elapsedMillis,
+            running = false
+        )
+
+        watchViewModel.updateRunningState(
+            watchId = itemID,
+            isRunning = false,
+            startTime = null
+        )
 
         val intent = Intent(activityRef, TimerService::class.java).apply {
             action = TimerService.ACTION_STOP_TIMER
@@ -169,10 +195,16 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         }
         activityRef.startService(intent)
 
-        // Capture timer overlay
         imageBitmap = takeScreenshot(binding.myTimer)
-
         takePhoto()
+    }
+
+    private fun parseTimeToMillis(time: String): Long {
+        val parts = time.split(":").map { it.toLong() }
+        val hr = parts.getOrNull(0) ?: 0
+        val min = parts.getOrNull(1) ?: 0
+        val sec = parts.getOrNull(2) ?: 0
+        return (hr * 3600 + min * 60 + sec) * 1000
     }
 
     private fun resetTimer() {
@@ -218,26 +250,42 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         viewFinder = binding.viewFinder
         outputDirectory = getOutputDirectory()
 
-        if (allPermissionsGranted()) startCamera()
-        else ActivityCompat.requestPermissions(
-            activityRef,
-            REQUIRED_PERMISSIONS,
-            REQUEST_CODE_PERMISSIONS
-        )
+        if (allPermissionsGranted()) {
+            startCamera()
+        } else {
+            requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                Toast.makeText(requireContext(), "Camera permission is required to take photos", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun startCamera() {
-        val providerFuture = ProcessCameraProvider.getInstance(activityRef)
-        providerFuture.addListener({
-            val provider = providerFuture.get()
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(activityRef)
 
-            val preview = Preview.Builder().build()
-            preview.setSurfaceProvider(viewFinder.surfaceProvider)
+        cameraProviderFuture.addListener({
+            val cameraProvider = cameraProviderFuture.get()
+
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(viewFinder.surfaceProvider)
+            }
 
             imageCapture = ImageCapture.Builder().build()
 
-            provider.unbindAll()
-            provider.bindToLifecycle(
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(
                 viewLifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
                 preview,
@@ -250,19 +298,19 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         val capture = imageCapture ?: return
         mediaPlayer?.start()
 
-        val file = File(outputDirectory, "${System.currentTimeMillis()}.jpg")
-        val options = ImageCapture.OutputFileOptions.Builder(file).build()
+        val photoFile = File(outputDirectory, "${System.currentTimeMillis()}.jpg")
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         capture.takePicture(
-            options,
+            outputOptions,
             ContextCompat.getMainExecutor(activityRef),
             object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(result: ImageCapture.OutputFileResults) {
-                    processCapturedImage(file)
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    processCapturedImage(photoFile)
                 }
 
-                override fun onError(exception: ImageCaptureException) {
-                    Log.e("Camera", exception.message ?: "Error")
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e("Camera", "Photo capture failed: ${exc.message}", exc)
                 }
             }
         )
@@ -274,25 +322,14 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
 
     private fun processCapturedImage(photoFile: File) {
         CoroutineScope(Dispatchers.IO).launch {
+            val originalBitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+            val rotatedBitmap = rotateBitmapIfRequired(originalBitmap, photoFile)
+            val finalBitmap = addOverlay(rotatedBitmap)
 
-            val originalBitmap =
-                BitmapFactory.decodeFile(photoFile.absolutePath)
+            val imageName = saveBitmap(finalBitmap)
+            photoFile.delete() // Clean up temporary file
 
-            val rotatedBitmap =
-                rotateBitmapIfRequired(originalBitmap, photoFile)
-
-            val finalBitmap =
-                addOverlay(rotatedBitmap)
-
-            val imageName =
-                saveBitmap(finalBitmap)
-
-            photoFile.delete()
-
-            val date = SimpleDateFormat(
-                "dd/MM/yyyy HH:mm:ss",
-                Locale.getDefault()
-            ).format(Date())
+            val date = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(Date())
 
             val subItem = SubItemEntity(
                 watchId = itemID,
@@ -316,18 +353,9 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         }
     }
 
-    // ----------------------------------------------------
-    // IMAGE HELPERS
-    // ----------------------------------------------------
-
     private fun rotateBitmapIfRequired(bitmap: Bitmap, file: File): Bitmap {
         val exif = ExifInterface(file.absolutePath)
-        return when (
-            exif.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_NORMAL
-            )
-        ) {
+        return when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
             ExifInterface.ORIENTATION_ROTATE_90 -> rotate(bitmap, 90f)
             ExifInterface.ORIENTATION_ROTATE_180 -> rotate(bitmap, 180f)
             ExifInterface.ORIENTATION_ROTATE_270 -> rotate(bitmap, 270f)
@@ -335,26 +363,20 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         }
     }
 
-    private fun rotate(bitmap: Bitmap, degree: Float): Bitmap =
-        Bitmap.createBitmap(
-            bitmap, 0, 0, bitmap.width, bitmap.height,
-            Matrix().apply { postRotate(degree) }, true
-        )
+    private fun rotate(bitmap: Bitmap, degree: Float): Bitmap {
+        val matrix = Matrix().apply { postRotate(degree) }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
 
     private fun addOverlay(cameraBitmap: Bitmap): Bitmap {
-        val result = Bitmap.createBitmap(
-            cameraBitmap.width,
-            cameraBitmap.height,
-            Bitmap.Config.ARGB_8888
-        )
-
+        val result = Bitmap.createBitmap(cameraBitmap.width, cameraBitmap.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
         canvas.drawBitmap(cameraBitmap, 0f, 0f, null)
 
         imageBitmap?.let { overlay ->
             val matrix = Matrix()
             matrix.postScale(1.6f, 1.6f)
-            matrix.postTranslate(700f, 800f)
+            matrix.postTranslate(700f, 800f) // Adjust position/size as needed
             canvas.drawBitmap(overlay, matrix, null)
         }
         return result
@@ -364,44 +386,43 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         val filename = "${System.currentTimeMillis()}.jpg"
 
         val values = ContentValues().apply {
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
             put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         }
 
-        val uri = activityRef.contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            values
-        )
+        val uri = activityRef.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
 
-        uri?.let {
-            activityRef.contentResolver.openOutputStream(it)?.use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+        uri?.let { imageUri ->
+            activityRef.contentResolver.openOutputStream(imageUri)?.use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
             }
         }
         return filename
     }
 
-    private fun takeScreenshot(view: View): Bitmap =
-        Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-            .apply { Canvas(this).also { view.draw(it) } }
+    private fun takeScreenshot(view: View): Bitmap {
+        return Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888).apply {
+            val canvas = Canvas(this)
+            view.draw(canvas)
+        }
+    }
 
     // ----------------------------------------------------
 
-    private fun allPermissionsGranted() =
-        REQUIRED_PERMISSIONS.all {
-            ContextCompat.checkSelfPermission(activityRef, it) ==
-                    PackageManager.PERMISSION_GRANTED
-        }
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(requireContext(), it) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    }
 
-    private fun getOutputDirectory(): File =
-        activityRef.externalMediaDirs.firstOrNull()?.let {
+    private fun getOutputDirectory(): File {
+        return requireContext().externalMediaDirs.firstOrNull()?.let {
             File(it, getString(R.string.app_name)).apply { mkdirs() }
-        } ?: activityRef.filesDir
+        } ?: requireContext().filesDir
+    }
 
     override fun onTimeUpdated(remainingTime: Long) {}
 
     private fun showTrackingWarningDialog() {
-        AlertDialog.Builder(requireContext())
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Tracking in progress")
             .setMessage("Tracking is currently running. Do you want to stop it and go back?")
             .setCancelable(false)
@@ -410,9 +431,15 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
             .show()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        LocalBroadcastManager.getInstance(activityRef).unregisterReceiver(timerReceiver)
+        cameraExecutor.shutdown()
+        mediaPlayer?.release()
+    }
+
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 1001
-        private val REQUIRED_PERMISSIONS =
-            arrayOf(Manifest.permission.CAMERA)
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 }

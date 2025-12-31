@@ -26,6 +26,8 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/app_icon"
         android:supportsRtl="true"
+        android:allowClearUserData="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme"
         tool:replace="android:icon">
         <activity
@@ -35,7 +37,8 @@
         <activity
             android:name=".activity.SplashActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,8 +47,9 @@
         </activity>
         <activity
             android:name=".activity.MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

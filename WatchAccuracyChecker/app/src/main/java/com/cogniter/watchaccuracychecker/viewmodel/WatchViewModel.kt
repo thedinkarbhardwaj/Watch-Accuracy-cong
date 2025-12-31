@@ -51,5 +51,25 @@ class WatchViewModel(private val repository: WatchRepository) : ViewModel() {
         return repository.isWatchRunning(watchId)
     }
 
+    fun updateElapsedTime(id: Int, elapsed: Long, running: Boolean) {
+        viewModelScope.launch {
+            repository.updateTimer(id.toLong(), elapsed, running)
+        }
+    }
+
+    fun updateRunningState(
+        watchId: Long,
+        isRunning: Boolean,
+        startTime: Long?
+    ) {
+        viewModelScope.launch {
+            repository.updateRunningState(
+                watchId = watchId,
+                isRunning = isRunning,
+                startTime = startTime
+            )
+        }
+    }
+
 
 }

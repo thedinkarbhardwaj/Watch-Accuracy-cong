@@ -22,11 +22,14 @@ import com.cogniter.watchaccuracychecker.activity.UI.MywatchListing
 import com.cogniter.watchaccuracychecker.activity.UI.SettingsFragment
 import com.cogniter.watchaccuracychecker.activity.UI.WatchDetailFragment
 import com.cogniter.watchaccuracychecker.adapter.DrawerItemCustomAdapter
+import com.cogniter.watchaccuracychecker.database.AppDatabase
 import com.cogniter.watchaccuracychecker.database.DBHelper
 import com.cogniter.watchaccuracychecker.databinding.ActivityMainBinding
 import com.cogniter.watchaccuracychecker.model.DataModel
+import com.cogniter.watchaccuracychecker.repository.WatchRepository
 import com.cogniter.watchaccuracychecker.service.TimerService
 import com.cogniter.watchaccuracychecker.utills.GlobalVariables.COMMON_ID
+import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : AppCompatActivity(), DrawerItemCustomAdapter.OnItemClickListener {
@@ -47,6 +50,20 @@ class MainActivity : AppCompatActivity(), DrawerItemCustomAdapter.OnItemClickLis
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+//        val db = AppDatabase.getDatabase(this@MainActivity)
+//
+//        val repository = WatchRepository(db.watchDao())
+//        runBlocking {
+//            repository.stopAllRunningWatchesOnAppStart()
+//        }
+
+        if (!isTaskRoot) {
+            finish() // prevent restoring old instance if app was killed
+            return
+        }
+
+        Log.d("MainActRun","MainActRun")
 
          dbHelper = DBHelper(this)
         // alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -225,6 +242,8 @@ class MainActivity : AppCompatActivity(), DrawerItemCustomAdapter.OnItemClickLis
     }
 
     private fun watchlistUI() {
+
+        binding.backButton.visibility = View.INVISIBLE
         binding.bottomNav.visibility = View.VISIBLE
 
         binding.myWacthesIcon.setColorFilter(ContextCompat.getColor(this, R.color.darkyellow));

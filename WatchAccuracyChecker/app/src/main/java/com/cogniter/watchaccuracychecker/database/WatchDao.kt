@@ -71,4 +71,45 @@ interface WatchDao {
     @Query("SELECT isWatchRunning FROM watch_items WHERE id = :watchId")
     fun isWatchRunning(watchId: Long): LiveData<Boolean>
 
+    @Query("""
+    UPDATE watch_items 
+    SET elapsedTimeMillis = :elapsed,
+        isWatchRunning = :isRunning
+    WHERE id = :watchId
+""")
+    suspend fun updateElapsedTime(
+        watchId: Long,
+        elapsed: Long,
+        isRunning: Boolean
+    )
+
+    @Query("""
+    UPDATE watch_items
+    SET elapsedTimeMillis = :elapsed,
+        isWatchRunning = :running
+    WHERE id = :watchId
+""")
+    suspend fun updateTimer(
+        watchId: Long,
+        elapsed: Long,
+        running: Boolean
+    )
+
+
+    @Query("""
+UPDATE watch_items
+SET 
+    elapsedTimeMillis = elapsedTimeMillis + 
+        CASE 
+            WHEN startTimeMillis > 0 THEN (:now - startTimeMillis)
+            ELSE 0
+        END,
+    isWatchRunning = 0,        -- ✅ sets running state to false
+    startTimeMillis = 220        -- resets start time
+WHERE isWatchRunning = 1       -- only affects currently running watches
+""")
+    suspend fun stopAllRunningWatches(now: Long)
+
+
+
 }

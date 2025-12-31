@@ -2,7 +2,10 @@ package com.cogniter.watchaccuracychecker.activity.UI
 
 import android.Manifest
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -12,12 +15,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.cogniter.watchaccuracychecker.R
@@ -28,6 +33,7 @@ import com.cogniter.watchaccuracychecker.database.AppDatabase
 import com.cogniter.watchaccuracychecker.database.entity.WatchEntity
 import com.cogniter.watchaccuracychecker.databinding.MywatchlistingBinding
 import com.cogniter.watchaccuracychecker.repository.WatchRepository
+import com.cogniter.watchaccuracychecker.service.TimerService
 import com.cogniter.watchaccuracychecker.viewmodel.WatchViewModel
 import com.cogniter.watchaccuracychecker.viewmodel.WatchViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -36,6 +42,8 @@ class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
 
     private var _binding: MywatchlistingBinding? = null
     private val binding get() = _binding!!
+    private lateinit var activityRef: Activity
+
 
     private lateinit var watchViewModel: WatchViewModel
     private lateinit var adapter: MyWatchesAdapter
@@ -44,6 +52,18 @@ class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
 
     // Camera launcher for CustomCameraActivity
     private lateinit var cameraLauncher: androidx.activity.result.ActivityResultLauncher<Intent>
+
+
+    private val timerReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val id = intent?.getIntExtra(TimerService.EXTRA_TIMER_ID, -1) ?: return
+            val elapsed = intent.getLongExtra(TimerService.EXTRA_TIMER_VALUE, 0L)
+            val isRunning = intent.getBooleanExtra(TimerService.IS_RUNNING, false)
+
+            watchViewModel.updateElapsedTime(id, elapsed, isRunning)
+        }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,10 +81,24 @@ class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
             WatchViewModelFactory(repository)
         )[WatchViewModel::class.java]
 
+        activityRef = requireActivity()
+
+        (activityRef as MainActivity).apply {
+            findViewById<TextView>(R.id.nameTextView)?.text = "MY WATCHES"
+            findViewById<ImageView>(R.id.backButton)?.visibility = View.GONE
+        }
+
         setupCameraLauncher()
         setupRecycler()
         observeData()
         setupClicks()
+
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(
+                timerReceiver,
+                IntentFilter(TimerService.ACTION_TIMER_UPDATE)
+            )
+
 
         return binding.root
     }

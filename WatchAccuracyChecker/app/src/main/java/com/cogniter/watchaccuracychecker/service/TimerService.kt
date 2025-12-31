@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -15,6 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.cogniter.watchaccuracychecker.R
 import com.cogniter.watchaccuracychecker.activity.MainActivity
 import com.cogniter.watchaccuracychecker.database.AppDatabase
+import com.cogniter.watchaccuracychecker.database.WatchDao
 import com.cogniter.watchaccuracychecker.repository.WatchRepository
 import com.cogniter.watchaccuracychecker.utills.NotificationTimeData
 import com.cogniter.watchaccuracychecker.utills.NotificationTimeHolder
@@ -29,6 +31,8 @@ class TimerService : Service() {
     private val timers = TimerDataHolder.timers
     private val notificationTimers = NotificationTimeHolder.notificationtimers
     private val handler = Handler()
+    private lateinit var watchDao: WatchDao
+
 
     private lateinit var watchRepository: WatchRepository
 
@@ -36,6 +40,11 @@ class TimerService : Service() {
         super.onCreate()
         val db = AppDatabase.getDatabase(this)
         watchRepository = WatchRepository(db.watchDao())
+
+        watchDao = db.watchDao()
+        watchRepository = WatchRepository(watchDao)
+
+
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -73,7 +82,7 @@ class TimerService : Service() {
         }
     }
 
-    private fun startRunnable(timerId: Int) {
+    private fun startRunnable2(timerId: Int) {
         val timer = timers[timerId] ?: return
 
         val runnable = object : Runnable {
@@ -93,7 +102,38 @@ class TimerService : Service() {
         handler.post(runnable)
     }
 
-    private fun stopTimer(timerId: Int) {
+    private fun startRunnable(timerId: Int) {
+        val timer = timers[timerId] ?: return
+
+        val runnable = object : Runnable {
+            override fun run() {
+                if (!timer.isRunning) return
+
+                timer.elapsedTime =
+                    System.currentTimeMillis() - timer.startTime
+
+                // ✅ UPDATE ROOM (SINGLE SOURCE OF TRUTH)
+                CoroutineScope(Dispatchers.IO).launch {
+                    watchDao.updateElapsedTime(
+                        watchId = timerId.toLong(),
+                        elapsed = timer.elapsedTime,
+                        isRunning = true
+                    )
+                }
+
+                // UI broadcast (ClockFragment only)
+                sendTimerUpdate(timerId, timer.elapsedTime, true)
+
+                handler.postDelayed(this, 1000)
+            }
+        }
+
+        timer.runnable = runnable
+        handler.post(runnable)
+    }
+
+
+    private fun stopTimer2(timerId: Int) {
         val timer = timers[timerId] ?: return
 
         timer.isRunning = false
@@ -105,7 +145,28 @@ class TimerService : Service() {
         notificationTimers.remove(timerId)
     }
 
-    private fun resetTimer(timerId: Int) {
+    private fun stopTimer(timerId: Int) {
+        val timer = timers[timerId] ?: return
+
+        timer.isRunning = false
+        timer.runnable?.let { handler.removeCallbacks(it) }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            watchDao.updateElapsedTime(
+                watchId = timerId.toLong(),
+                elapsed = timer.elapsedTime,
+                isRunning = false
+            )
+        }
+
+        sendTimerUpdate(timerId, timer.elapsedTime, false)
+
+        timers.remove(timerId)
+        notificationTimers.remove(timerId)
+    }
+
+
+    private fun resetTimer2(timerId: Int) {
         val timer = timers[timerId] ?: return
 
         timer.isRunning = false
@@ -114,6 +175,25 @@ class TimerService : Service() {
 
         sendTimerUpdate(timerId, 0L, false)
     }
+
+    private fun resetTimer(timerId: Int) {
+        val timer = timers[timerId] ?: return
+
+        timer.isRunning = false
+        timer.elapsedTime = 0L
+        timer.runnable?.let { handler.removeCallbacks(it) }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            watchDao.updateElapsedTime(
+                watchId = timerId.toLong(),
+                elapsed = 0L,
+                isRunning = false
+            )
+        }
+
+        sendTimerUpdate(timerId, 0L, false)
+    }
+
 
     // ------------------------------------
     // BROADCAST UPDATE
@@ -203,7 +283,7 @@ class TimerService : Service() {
 
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.app_icon)
-            .setContentText("Watch accuracy service running")
+            .setContentText("Watch accuracy service running check")
             .setSound(Uri.EMPTY)
             .build()
     }
@@ -249,6 +329,39 @@ class TimerService : Service() {
 
         manager.notify(timerId, notification)
     }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Log.d("TimerService", "App cleared from Recents, stopping running watches")
+
+        // Ensure all running watches are stopped in DB
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                watchRepository.stopAllRunningWatchesOnAppStart()
+            } catch (e: Exception) {
+                Log.e("TimerService", "Error stopping watches on task removed", e)
+            }
+        }
+
+        // Stop the service
+        stopForeground(true)
+        stopSelf()
+
+        super.onTaskRemoved(rootIntent)
+    }
+
+
+
+    override fun onDestroy() {
+        timers.forEach { (_, timer) ->
+            timer.runnable?.let { handler.removeCallbacks(it) }
+        }
+        timers.clear()
+        notificationTimers.clear()
+        super.onDestroy()
+    }
+
+
+
 
     // ------------------------------------
     // CONSTANTS
