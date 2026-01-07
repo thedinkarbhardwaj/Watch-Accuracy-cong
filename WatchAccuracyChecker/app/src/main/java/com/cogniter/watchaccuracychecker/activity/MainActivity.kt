@@ -329,10 +329,10 @@ class MainActivity : AppCompatActivity(), DrawerItemCustomAdapter.OnItemClickLis
         when (currentFragment) {
 
             is WatchDetailFragment -> {
-                supportFragmentManager.popBackStack(
-                    null,
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE
-                )
+//                supportFragmentManager.popBackStack(
+//                    null,
+//                    FragmentManager.POP_BACK_STACK_INCLUSIVE
+//                )
                 watchlistUI()
             }
 
@@ -347,6 +347,7 @@ class MainActivity : AppCompatActivity(), DrawerItemCustomAdapter.OnItemClickLis
                 watchlistUI()
 
             }
+
 
             else -> {
                 if (supportFragmentManager.backStackEntryCount > 0) {
@@ -406,6 +407,26 @@ class MainActivity : AppCompatActivity(), DrawerItemCustomAdapter.OnItemClickLis
         // Remove the last back stack entry
 
     }
+
+    fun openFragmentWithBudelData2(
+        itemId: Long,
+        watchName: String,
+        fragment: Fragment,
+        fragmentName: String,
+        isrunning: Boolean
+    ) {
+        val bundle = Bundle().apply {
+            putLong("itemID", itemId)
+            putString("watchNAME", watchName)
+            putBoolean("isrunning", isrunning)
+        }
+        fragment.arguments = bundle
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, fragment)
+            .commit()
+    }
+
 
     override fun onDestroy() {
         val isServiceRunning = TimerService.isServiceRunning(this, TimerService::class.java)

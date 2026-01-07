@@ -33,6 +33,10 @@ class WatchViewModel(private val repository: WatchRepository) : ViewModel() {
         repository.insertSubItem(subItem)
     }
 
+    fun updateHistoryCount(watchId: Long) = viewModelScope.launch {
+        repository.updateHistoryCount(watchId)
+    }
+
     val allWatches = repository.getAllWatches().asLiveData()
 
     fun insertWatch(watch: WatchEntity) = viewModelScope.launch {

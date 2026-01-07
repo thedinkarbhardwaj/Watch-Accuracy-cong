@@ -89,7 +89,7 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
 
         readArguments()
         setupUI()
-        initCamera()
+//        initCamera()
 
         LocalBroadcastManager.getInstance(activityRef)
             .registerReceiver(timerReceiver, IntentFilter(TimerService.ACTION_TIMER_UPDATE))
@@ -103,6 +103,13 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
         }
 
         return binding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initCamera()
+
     }
 
     // ----------------------------------------------------
@@ -339,6 +346,7 @@ class ClockFragment : Fragment(), AnalogTimerView.TimerListener {
             )
 
             watchViewModel.addSubItem(subItem)
+            watchViewModel.updateHistoryCount(subItem.watchId)
 
             requireActivity().runOnUiThread {
                 Toast.makeText(activityRef, "Record saved", Toast.LENGTH_SHORT).show()

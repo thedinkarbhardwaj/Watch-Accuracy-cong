@@ -15,6 +15,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"/>
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/headervalue"
         android:layout_width="match_parent"
         android:layout_height="150dp"

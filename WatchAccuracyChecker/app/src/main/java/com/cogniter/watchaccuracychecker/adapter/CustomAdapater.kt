@@ -14,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.cogniter.watchaccuracychecker.R
 import com.cogniter.watchaccuracychecker.database.DBHelper
+import com.cogniter.watchaccuracychecker.database.entity.SubItemEntity
 import com.cogniter.watchaccuracychecker.model.Subitem
 import com.cogniter.watchaccuracychecker.utills.ImageUtils
 
@@ -63,55 +64,47 @@ class CustomAdapater(
         }
 
         holder.itemView.setOnClickListener {
-            showFullScreenPopup(position, subItem.subitemId)
+//            showFullScreenPopup(position, subItem.subitemId)
+
+            showFullScreenPopup(subItem)
         }
     }
 
     override fun getItemCount(): Int = subitemList.size
 
-    private fun showFullScreenPopup(position: Int, subitemId: Long) {
+
+    private fun showFullScreenPopup(subItem: Subitem) {
+
         val dialog = Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.fullscreen_popup)
 
-        val viewPager = dialog.findViewById<ViewPager2>(R.id.viewPager)
+        val imageView = dialog.findViewById<ImageView>(R.id.historyImage)
         val nameTextView = dialog.findViewById<TextView>(R.id.nameTextView)
+        val dateText = dialog.findViewById<TextView>(R.id.dateText)
+        val elapsedText = dialog.findViewById<TextView>(R.id.elapsedText)
+        val backBtn = dialog.findViewById<ImageView>(R.id.backButtonPopup)
+
+        backBtn.setOnClickListener { dialog.dismiss() }
+
+        // Watch name
         nameTextView.text = watchName
-        val backButtonPopup = dialog.findViewById<ImageView>(R.id.backButtonPopup)
-        backButtonPopup.setOnClickListener { dialog.dismiss() }
 
-        var currentPosition = position
-        val displayList: List<Subitem> = if (isFromAll) {
-            val dbHelper = DBHelper(context)
-            var allItems = dbHelper.getAllItems()?.reversed() ?: emptyList()
-            val allSubItems = mutableListOf<Subitem>()
-            allItems.forEach { item ->
-                val subItems = dbHelper.getSubItemsForItem(item.id ?: 0)
-                allSubItems.addAll(subItems.reversed())
-            }
-            allSubItems.removeAll { it.name == "subitem1" }
-
-            // Find the correct position for the clicked subitem
-            currentPosition = allSubItems.indexOfFirst { it.subitemId == subitemId }.takeIf { it >= 0 } ?: 0
-            allSubItems
-        } else {
-            subitemList
+        // Load image safely
+        val imageUri = ImageUtils.getImageUriFromName(context, subItem.image)
+        if (imageUri != null) {
+            Glide.with(context)
+                .load(imageUri)
+                .into(imageView)
         }
 
-        val mViewPagerAdapter = ImageSliderAdapter(context, displayList)
-        viewPager.adapter = mViewPagerAdapter
-        viewPager.setCurrentItem(currentPosition, false)
+        // Date & time
+        dateText.text = "Date: ${subItem.date}"
 
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                if (isFromAll) {
-                    val dbHelper = DBHelper(context)
-                    val watchNameForSubItem = dbHelper.getWatchNameForSubcategoryId(displayList[position].subitemId)
-                    nameTextView.text = watchNameForSubItem ?: watchName
-                }
-            }
-        })
+        // Elapsed time
+        elapsedText.text = "Elapsed: ${subItem.name}"
 
         dialog.show()
     }
+
+
 }

@@ -28,6 +28,36 @@ interface WatchDao {
     @Query("SELECT * FROM watch_items WHERE id = :watchId LIMIT 1")
     suspend fun getWatchById(watchId: Long): WatchEntity?
 
+    @Query("""
+UPDATE watch_items 
+SET historyCount = historyCount + 1 
+WHERE id = :watchId
+""")
+    suspend fun incrementHistoryCount(watchId: Long)
+
+    @Query("""
+UPDATE watch_items 
+SET historyCount = 
+    CASE 
+        WHEN historyCount > 0 THEN historyCount - 1 
+        ELSE 0 
+    END
+WHERE id = :watchId
+""")
+    suspend fun decrementHistoryCount(watchId: Long)
+
+
+    @Query("SELECT watchId FROM sub_items WHERE id = :subItemId")
+    suspend fun getWatchIdBySubItemId(subItemId: Long): Long
+
+    @Transaction
+    suspend fun deleteHistoryAndUpdateCount(subItemId: Long) {
+        val watchId = getWatchIdBySubItemId(subItemId)
+        deleteSubItem(subItemId)
+        decrementHistoryCount(watchId)
+    }
+
+
 
     /* ---------------- SUB ITEMS ---------------- */
 
@@ -43,15 +73,28 @@ interface WatchDao {
 
     /* ---------------- WATCH + SUBITEMS ---------------- */
 
-    @Transaction
+//    @Transaction
+//    @Query("SELECT * FROM watch_items")
+//    fun getWatchesWithSubItems(): Flow<List<WatchWithSubItems>>
+
+
     @Query("SELECT * FROM watch_items")
-    fun getWatchesWithSubItems(): Flow<List<WatchWithSubItems>>
+    fun getWatchesWithSubItems(): List<WatchWithSubItems>
 
     @Transaction
     @Query("SELECT * FROM watch_items WHERE id = :watchId")
     suspend fun getWatchWithSubItemsById(
         watchId: Long
     ): WatchWithSubItems?
+
+
+//    @Transaction
+//    @Query("""
+//SELECT * FROM watch_items
+//WHERE id IN (SELECT DISTINCT watchId FROM sub_items)
+//""")
+//    fun getOnlyWatchesWithHistory(): List<WatchWithSubItems>
+
 
 
     /* ---------------- RUN STATE ---------------- */

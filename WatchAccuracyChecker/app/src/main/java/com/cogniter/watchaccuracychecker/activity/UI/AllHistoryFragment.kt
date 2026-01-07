@@ -27,6 +27,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 class AllHistoryFragment : Fragment(), AlHistoryAdapter.OnAllHistoryDeleteClickListener {
@@ -114,7 +116,6 @@ class AllHistoryFragment : Fragment(), AlHistoryAdapter.OnAllHistoryDeleteClickL
             .show()
     }
 
-
     private fun setupRecyclerView(view: View) {
         recyclerView = view.findViewById(R.id.imageRecyclerView)
         adapter = AlHistoryAdapter(activityRef, watchList)
@@ -125,11 +126,26 @@ class AllHistoryFragment : Fragment(), AlHistoryAdapter.OnAllHistoryDeleteClickL
 
     private fun loadWatchHistoryFromRoom() {
         // Using coroutine to collect Flow from Room
+//        lifecycleScope.launch {
+//            database.watchDao().getWatchesWithSubItems().collect { watches ->
+//            database.watchDao().getOnlyWatchesWithHistoryOnce().collect { watches ->
+//                watchList = watches.reversed() // Latest first
+//                adapter?.updateList(watchList)
+//            }
+
+
+//        }
+
         lifecycleScope.launch {
-            database.watchDao().getWatchesWithSubItems().collect { watches ->
-                watchList = watches.reversed() // Latest first
-                adapter?.updateList(watchList)
+            val watches = withContext(Dispatchers.IO) {
+                database
+                    .watchDao()
+                    .getWatchesWithSubItems()
+//                    .getOnlyWatchesWithHistory()
             }
+
+            watchList = watches.reversed()
+            adapter?.updateList(watchList)
         }
     }
 
@@ -143,7 +159,17 @@ class AllHistoryFragment : Fragment(), AlHistoryAdapter.OnAllHistoryDeleteClickL
             .setMessage("Are you sure to delete the record?")
             .setPositiveButton("Yes") { _, _ ->
                 lifecycleScope.launch {
-                    database.watchDao().deleteSubItem(subItem.id)
+                   // val watchId = database.watchDao().getWatchIdBySubItemId(subItem.id)
+
+                  //  database.watchDao().deleteSubItem(subItem.id)
+               //     database.watchDao().decrementHistoryCount(watchId)
+                    database.watchDao().deleteHistoryAndUpdateCount(subItem.id)
+
+                    watchList = emptyList()
+                    loadWatchHistoryFromRoom()
+                   // adapter?.notifyDataSetChanged()
+
+
                     Toast.makeText(activityRef, "Record deleted successfully.", Toast.LENGTH_LONG).show()
                 }
             }
@@ -155,4 +181,6 @@ class AllHistoryFragment : Fragment(), AlHistoryAdapter.OnAllHistoryDeleteClickL
             // Optional: customize dialog button colors for dark mode
         }
     }
+
+
 }

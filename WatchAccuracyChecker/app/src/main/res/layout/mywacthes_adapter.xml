@@ -1,159 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="130dp"
-    android:layout_margin="10dp">
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="4dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="0.1dp"
-        android:background="@color/backgroundColor"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@color/backgroundColor">
+
+        <!-- Watch Image -->
+        <ImageView
+            android:id="@+id/watchimage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/img_placeholder"
+            android:background="@color/white"
+            android:padding="2dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <RelativeLayout
-            android:id="@+id/watchimageLAyout"
-            android:layout_width="104dp"
-            android:layout_height="104dp"
-            android:layout_alignParentLeft="true"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="4dp"
-            android:background="@color/white">
-
-            <ImageView
-                android:id="@+id/watchimage"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_centerInParent="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/img_placeholder" />
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/nameTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="5dp"
-            android:layout_toLeftOf="@+id/editBtn"
-            android:layout_toRightOf="@+id/watchimageLAyout"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:fontFamily="@font/poppins_medium"
-            android:text=""
-            android:textColor="@color/white"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/watchTimeText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/nameTextView"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_toRightOf="@+id/watchimageLAyout"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:fontFamily="@font/poppins_regular"
-            android:text=""
-            android:textColor="@color/white"
-            android:textSize="13sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_toRightOf="@+id/watchimageLAyout"
-            android:weightSum="2"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_below="@+id/watchTimeText">
-        <TextView
-            android:id="@+id/trackBtn"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/track_button_background"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:fontFamily="@font/poppins_regular"
-            android:text="Track"
-            android:layout_marginRight="10dp"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
-        <TextView
-            android:id="@+id/historyBtn"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/history_button_background"
-            android:layout_weight="1"
-            android:text="History"
-            android:gravity="center"
-            android:layout_marginRight="5dp"
-            android:fontFamily="@font/poppins_regular"
-            android:layout_marginLeft="10dp"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvTimerrrr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/nameTextView"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
-            android:text="00:00:00"
-            android:textColor="@android:color/white"
-            android:textSize="14sp" />
+            android:layout_toEndOf="@+id/watchimage"
+            app:layout_constraintStart_toEndOf="@+id/watchimage"
+            tools:layout_editor_absoluteY="10dp">
 
 
-        <RelativeLayout
-            android:id="@+id/editBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="10dp"
-            android:layout_toLeftOf="@+id/deleteBtn">
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal">
+                <!-- Edit Button -->
+                <ImageView
+                    android:id="@+id/editBtn"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/baseline_border_color_24"
+                    app:layout_constraintEnd_toStartOf="@+id/deleteBtn"
+                    app:layout_constraintTop_toTopOf="parent"
 
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/baseline_border_color_24"
-                app:tint="@color/white" />
+                    android:tintMode="src_in" />
 
 
+                <!-- Delete Button -->
+                <ImageView
+                    android:id="@+id/deleteBtn"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/bin"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:tint="@color/white"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/watchNameLay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_toStartOf="@+id/linearLayout2"
+                android:orientation="vertical">
+
+                <!-- Watch Name -->
+                <TextView
+                    android:id="@+id/nameTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_medium"
+                    android:maxLines="1"
+                    android:text="Watch Name"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+                <!-- Watch Time -->
+                <TextView
+                    android:id="@+id/watchTimeText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_regular"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:text="watch time"
+                    app:layout_constraintEnd_toEndOf="@+id/nameTextView"
+                    app:layout_constraintStart_toStartOf="@+id/nameTextView"
+                    app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
+
+                <!-- Timer -->
+
+                <LinearLayout
+                    android:id="@+id/timerLay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/timer"
+                        android:padding="2dp"
+                        android:layout_gravity="center_vertical"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:visibility="visible"
+                    android:id="@+id/tvTimerrrr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:padding="6dp"
+                    android:text="00:00:00"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/buttonLayout"
+                    app:layout_constraintStart_toStartOf="@+id/nameTextView"
+                    app:layout_constraintTop_toBottomOf="@+id/watchTimeText" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Buttons Layout -->
+            <LinearLayout
+                android:id="@+id/buttonLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_below="@+id/watchNameLay">
+
+                <TextView
+                    android:id="@+id/trackBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/track_button_background"
+                    android:gravity="center"
+                    android:text="Track"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/historyBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/history_button_background"
+                    android:gravity="center"
+                    android:text="History"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Tracking Indicator -->
+            <View
+                android:id="@+id/trackingprogress"
+                android:layout_width="4dp"
+                android:layout_height="0dp"
+                android:background="@color/bg_green_color"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/deleteBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp">
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/bin"
-                app:tint="@color/white" />
-        </RelativeLayout>
-        <View
-            android:id="@+id/trackingprogress"
-            android:layout_width="3dp"
-            android:layout_height="match_parent"
-            android:background="@color/bg_green_color"
-            android:layout_alignParentRight="true"
-            />
-
 
     </RelativeLayout>
+
 </androidx.cardview.widget.CardView>

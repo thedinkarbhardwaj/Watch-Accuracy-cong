@@ -14,6 +14,9 @@ class WatchRepository(
         return dao.isWatchRunning(watchId)
     }
 
+    suspend fun updateHistoryCount(watchId: Long) =
+        dao.incrementHistoryCount(watchId)
+
 
     suspend fun getWatchTitleById(watchId: Long): String? =
         dao.getWatchById(watchId)?.title
@@ -21,7 +24,10 @@ class WatchRepository(
     fun getAllWatches(): Flow<List<WatchEntity>> =
         dao.getAllWatches()
 
-    fun getWatchesWithSubItems(): Flow<List<WatchWithSubItems>> =
+//    fun getWatchesWithSubItems(): Flow<List<WatchWithSubItems>> =
+//        dao.getWatchesWithSubItems()
+
+    fun getWatchesWithSubItems(): List<WatchWithSubItems> =
         dao.getWatchesWithSubItems()
 
     suspend fun insertWatch(watch: WatchEntity): Long =

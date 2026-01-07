@@ -13,4 +13,5 @@
     <color name="backgroundColor">#08113A</color>
     <color name="blue_button_color">#086EC0</color>
     <color name="bg_green_color">#00c04b</color>
+    <color name="grey">#9E9E9E</color>
 </resources>

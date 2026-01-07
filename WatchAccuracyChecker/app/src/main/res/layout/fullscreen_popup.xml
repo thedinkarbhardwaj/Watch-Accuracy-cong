@@ -1,82 +1,68 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- fullscreen_popup.xml -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
-    <RelativeLayout
+    android:background="@color/black">
+
+    <!-- Top Bar -->
+    <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#044997">
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/blue_button_color"
+        android:padding="16dp">
+
         <ImageView
             android:id="@+id/backButtonPopup"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:src="@drawable/back_button"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="15dp"
-            android:layout_centerVertical="true"
-            ></ImageView>
+            android:tint="@android:color/white"/>
 
         <TextView
             android:id="@+id/nameTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:layout_marginStart="16dp"/>
+    </LinearLayout>
 
-
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="5dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text=""
-            android:fontFamily="@font/poppins_medium"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:textColor="@color/white"
-            android:textSize="17sp" />
-
-
-    </RelativeLayout>
-<androidx.viewpager2.widget.ViewPager2
-    android:id="@+id/viewPager"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:layout_below="@+id/toolbar"
-
-    />
-
-<!--    <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/fullscreenImage"
+    <!-- Image -->
+    <ImageView
+        android:id="@+id/historyImage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:layout_above="@+id/titleText"
-        />
+        android:layout_height="0dp"
+        android:layout_below="@id/toolbar"
+        android:layout_above="@id/infoContainer"
+        android:scaleType="fitCenter"/>
 
-    <TextView
-        android:id="@+id/titleTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/titleText"
-        android:textColor="#FFFFFF"
-        android:text=""
-        android:fontFamily="@font/poppins_regular"
-        android:layout_marginLeft="10dp"
-        android:background="#80000000"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/titleText"
+    <!-- Info -->
+    <LinearLayout
+        android:id="@+id/infoContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:textColor="@color/darkyellow"
-        android:text=""
-        android:fontFamily="@font/poppins_regular"
-        android:layout_marginLeft="10dp"
-        android:background="#80000000"
-        android:textSize="18sp" />-->
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#80000000">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/dateText"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/elapsedText"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
 </RelativeLayout>

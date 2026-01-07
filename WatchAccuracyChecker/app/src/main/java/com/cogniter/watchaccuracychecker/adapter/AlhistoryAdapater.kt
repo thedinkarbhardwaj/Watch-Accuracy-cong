@@ -47,7 +47,7 @@ class AlHistoryAdapter(
 
         // Remove first placeholder item if needed
         if (subItemList.isNotEmpty()) {
-            subItemList = subItemList.drop(1).reversed()
+            subItemList = subItemList.drop(0).reversed()
         }
 
         holder.watchNameTextView.visibility = if (subItemList.isEmpty()) View.GONE else View.VISIBLE

@@ -30,7 +30,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class WatchDetailFragment : Fragment(), CustomAdapater.OnDeleteClickListener {
+class WatchDetailFragment : Fragment(), CustomAdapater.OnDeleteClickListener
+{
 
     private var _binding: WatchDetailActivityBinding? = null
     private val binding get() = _binding!!
@@ -173,13 +174,22 @@ class WatchDetailFragment : Fragment(), CustomAdapater.OnDeleteClickListener {
             val watchName = arguments?.getString("watchNAME") ?: ""
             val isRunning = arguments?.getBoolean("isrunning") ?: false
 
-            (activityRef as MainActivity).openFragmentWithBudelData(
+            if (isRunning){
+                Toast.makeText(this.requireActivity(),"Your watch is already in tracking mode, so you can’t add a new one at this time.",
+                    Toast.LENGTH_SHORT).show()
+
+                return@setOnClickListener
+            }
+
+
+            (activityRef as MainActivity).openFragmentWithBudelData2(
                 watchId,
                 watchName,
                 ClockFragment(),
                 "ClockActivity",
                 isRunning
             )
+
         }
     }
 
@@ -189,7 +199,8 @@ class WatchDetailFragment : Fragment(), CustomAdapater.OnDeleteClickListener {
             .setMessage("Are you sure to delete the record?")
             .setPositiveButton("Yes") { _, _ ->
                 lifecycleScope.launch(Dispatchers.IO) {
-                    database.watchDao().deleteSubItem(subitem.subitemId)
+//                    database.watchDao().deleteSubItem(subitem.subitemId)
+                    database.watchDao().deleteHistoryAndUpdateCount(subitem.subitemId)
                 }
                 subitemList.removeAt(position)
                 adapter.notifyItemRemoved(position)
@@ -203,4 +214,5 @@ class WatchDetailFragment : Fragment(), CustomAdapater.OnDeleteClickListener {
         super.onDestroyView()
         _binding = null
     }
+
 }
