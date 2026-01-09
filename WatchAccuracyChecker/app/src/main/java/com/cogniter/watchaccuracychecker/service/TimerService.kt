@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -242,11 +243,14 @@ class TimerService : Service() {
 
         when (intent.action) {
             ACTION_START_TIMER -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {  // API 29+
                     startForeground(
                         NOTIFICATION_ID,
-                        createForegroundNotification()
+                        createForegroundNotification(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
                     )
+                } else {
+                    startForeground(NOTIFICATION_ID, createForegroundNotification())
                 }
                 startTimer(timerId)
             }
@@ -334,17 +338,17 @@ class TimerService : Service() {
         Log.d("TimerService", "App cleared from Recents, stopping running watches")
 
         // Ensure all running watches are stopped in DB
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                watchRepository.stopAllRunningWatchesOnAppStart()
-            } catch (e: Exception) {
-                Log.e("TimerService", "Error stopping watches on task removed", e)
-            }
-        }
-
-        // Stop the service
-        stopForeground(true)
-        stopSelf()
+//        CoroutineScope(Dispatchers.IO).launch {
+//            try {
+//                watchRepository.stopAllRunningWatchesOnAppStart()
+//            } catch (e: Exception) {
+//                Log.e("TimerService", "Error stopping watches on task removed", e)
+//            }
+//        }
+//
+//        // Stop the service
+//        stopForeground(true)
+//        stopSelf()
 
         super.onTaskRemoved(rootIntent)
     }

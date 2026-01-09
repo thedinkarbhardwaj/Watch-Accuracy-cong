@@ -9,6 +9,8 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
@@ -39,6 +41,10 @@ import com.cogniter.watchaccuracychecker.viewmodel.WatchViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
+
+
+    private var shouldReloadRecycler = false
+    private val handler = Handler(Looper.getMainLooper())
 
     private var _binding: MywatchlistingBinding? = null
     private val binding get() = _binding!!
@@ -76,6 +82,12 @@ class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
         val db = AppDatabase.getDatabase(requireContext())
         val repository = WatchRepository(db.watchDao())
 
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(
+                timerReceiver,
+                IntentFilter(TimerService.ACTION_TIMER_UPDATE)
+            )
+
         watchViewModel = ViewModelProvider(
             this,
             WatchViewModelFactory(repository)
@@ -92,16 +104,37 @@ class MywatchListing : Fragment(), MyWatchesAdapter.OnImageClickListener {
         setupRecycler()
         observeData()
         setupClicks()
+        startRecyclerReloadRecursively()
 
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(
-                timerReceiver,
-                IntentFilter(TimerService.ACTION_TIMER_UPDATE)
-            )
 
 
         return binding.root
     }
+
+
+    fun startRecyclerReloadRecursively() {
+        shouldReloadRecycler = true
+        reloadRecyclerRecursively()
+    }
+
+
+    fun stopRecyclerReload() {
+        shouldReloadRecycler = false
+        handler.removeCallbacksAndMessages(null) // prevent memory leaks
+    }
+
+
+    private fun reloadRecyclerRecursively() {
+        if (!shouldReloadRecycler) return
+
+        handler.postDelayed({
+            if (!shouldReloadRecycler) return@postDelayed
+
+            adapter?.notifyDataSetChanged()
+            reloadRecyclerRecursively() // 🔁 recursion
+        }, 1000) // 1 second delay
+    }
+
 
     // ---------------- CAMERA LAUNCHER ----------------
     private fun setupCameraLauncher() {

@@ -16,7 +16,45 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import java.io.IOException
 
+
 object ImageUtils {
+
+    private const val PREF_NAME = "watch_prefs"
+    private const val KEY_NOTIFICATION_INTERVAL = "notificationTime"
+    private const val KEY_LAST_NOTIFICATION_TIME = "last_notification_time"
+
+    // Get notification interval (in hours)
+    fun getNotifcationTimeFromSharedPreferences(context: Context, key: String, defaultValue: Int): Int {
+        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .getInt(key, defaultValue)
+    }
+
+    fun saveNotifcationTimeToSharedPreferences(context: Context, key: String, value: Int) {
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putInt(key, value)
+            .apply()
+    }
+
+    // 🔥 For preventing duplicate notifications
+    fun getLastNotificationTime(context: Context): Long {
+        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .getLong(KEY_LAST_NOTIFICATION_TIME, 0L)
+    }
+
+    fun saveLastNotificationTime(context: Context, timeMillis: Long) {
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putLong(KEY_LAST_NOTIFICATION_TIME, timeMillis)
+            .apply()
+    }
+
+    fun clearLastNotificationTime(context: Context) {
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .remove(KEY_LAST_NOTIFICATION_TIME)
+            .apply()
+    }
 
     fun getImageUriFromName(context: Context, imageName: String): Uri? {
         val projection = arrayOf(MediaStore.Images.Media._ID)
@@ -39,35 +77,5 @@ object ImageUtils {
             return null
         }
     }
-
-    fun isDarkModeEnabled(context: Context): Boolean {
-        val currentNightMode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return currentNightMode == Configuration.UI_MODE_NIGHT_YES
-    }
-    fun saveNotifcationTimeToSharedPreferences(context: Context, key: String, value: Int) {
-        val sharedPreferences = context.getSharedPreferences("my_shared_preferences", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putInt(key, value)
-        editor.apply()
-    }
-    fun getNotifcationTimeFromSharedPreferences(context: Context, key: String, defaultValue: Int): Int {
-        val sharedPreferences = context.getSharedPreferences("my_shared_preferences", Context.MODE_PRIVATE)
-        return sharedPreferences.getInt(key, defaultValue)
-    }
-    fun isAppInForeground(context: Context): Boolean {
-        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val packageName = context.packageName
-
-        val runningAppProcesses = activityManager.runningAppProcesses
-
-        runningAppProcesses?.let {
-            for (processInfo in it) {
-                if (processInfo.processName == packageName && processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
 }
+

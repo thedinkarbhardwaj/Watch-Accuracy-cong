@@ -58,10 +58,10 @@ class MainActivity : AppCompatActivity(), DrawerItemCustomAdapter.OnItemClickLis
 //            repository.stopAllRunningWatchesOnAppStart()
 //        }
 
-        if (!isTaskRoot) {
-            finish() // prevent restoring old instance if app was killed
-            return
-        }
+//        if (!isTaskRoot) {
+//            finish() // prevent restoring old instance if app was killed
+//            return
+//        }
 
         Log.d("MainActRun","MainActRun")
 

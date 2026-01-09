@@ -177,9 +177,9 @@ class AllHistoryFragment : Fragment(), AlHistoryAdapter.OnAllHistoryDeleteClickL
             .create()
             .show()
 
-        if (ImageUtils.isDarkModeEnabled(activityRef)) {
-            // Optional: customize dialog button colors for dark mode
-        }
+//        if (ImageUtils.isDarkModeEnabled(activityRef)) {
+//            // Optional: customize dialog button colors for dark mode
+//        }
     }
 
 

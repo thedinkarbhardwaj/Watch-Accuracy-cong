@@ -102,13 +102,33 @@ WHERE id = :watchId
     @Query("""
         UPDATE watch_items
         SET isWatchRunning = :isRunning,
-            startTimeMillis = :startTime
+            startTimeMillis = :startTime,
+            beginTime = :beginTime
         WHERE id = :watchId
     """)
     suspend fun updateRunningState(
         watchId: Long,
         isRunning: Boolean,
-        startTime: Long?
+        startTime: Long?,
+        beginTime: String?
+
+    )
+
+    @Query("SELECT * FROM watch_items WHERE isWatchRunning = 1")
+    suspend fun getRunningWatches(): List<WatchEntity>
+
+
+
+
+    @Query("""
+        UPDATE watch_items
+        SET beginTime = :beginTime
+        WHERE id = :watchId
+    """)
+    suspend fun beginTimeAdded(
+        watchId: Long,
+        beginTime: String?
+
     )
 
     @Query("SELECT isWatchRunning FROM watch_items WHERE id = :watchId")

@@ -205,7 +205,7 @@ public class AnalogTimerView extends View {
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(timerUpdateReceiver);
     }
 
-    private void updateTimerView(long timeTakenseconds) {
+    public void updateTimerView(long timeTakenseconds) {
         // Update the AnalogTimerView with the new timer value
         //int milliseconds = (int) (timeTakenseconds % 1000);
         int seconds = (int) (timeTakenseconds / 1000 % 60);

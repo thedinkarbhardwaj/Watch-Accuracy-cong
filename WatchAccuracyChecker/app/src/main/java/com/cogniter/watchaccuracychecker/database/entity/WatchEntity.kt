@@ -2,8 +2,7 @@ package com.cogniter.watchaccuracychecker.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
-
+import java.text.DateFormat
 
 
 //@Entity(tableName = "watch_items")
@@ -32,7 +31,9 @@ data class WatchEntity(
     val isWatchRunning: Boolean = false,
     val watchImage: String,
     val addedWatchTime: String,
-    val historyCount: Int = 0
+    val historyCount: Int = 0,
+    var beginTime: String? = ""
 )
+
 
 

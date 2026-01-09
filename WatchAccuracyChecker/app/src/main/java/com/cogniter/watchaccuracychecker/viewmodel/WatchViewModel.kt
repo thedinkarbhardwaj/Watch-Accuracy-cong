@@ -11,9 +11,9 @@ import kotlinx.coroutines.launch
 
 class WatchViewModel(private val repository: WatchRepository) : ViewModel() {
 
-    fun startWatch(watchId: Long) = viewModelScope.launch {
-        repository.updateRunningState(watchId, true, System.currentTimeMillis())
-    }
+//    fun startWatch(watchId: Long) = viewModelScope.launch {
+//        repository.updateRunningState(watchId, true, System.currentTimeMillis())
+//    }
 
     fun stopWatch(watchId: Long) = viewModelScope.launch {
         val watch = repository.getWatchById(watchId) ?: return@launch
@@ -29,6 +29,9 @@ class WatchViewModel(private val repository: WatchRepository) : ViewModel() {
         )
     }
 
+    suspend fun getWatchById(watchId: Long): WatchEntity? {
+        return repository.getWatchById(watchId)
+    }
     fun addSubItem(subItem: SubItemEntity) = viewModelScope.launch {
         repository.insertSubItem(subItem)
     }
@@ -64,13 +67,29 @@ class WatchViewModel(private val repository: WatchRepository) : ViewModel() {
     fun updateRunningState(
         watchId: Long,
         isRunning: Boolean,
-        startTime: Long?
+        startTime: Long?,
+        beginTime: String? = null
     ) {
+
         viewModelScope.launch {
             repository.updateRunningState(
                 watchId = watchId,
                 isRunning = isRunning,
-                startTime = startTime
+                startTime = startTime,
+                beginTime
+            )
+        }
+    }
+
+    fun beginTimeAdded(
+        watchId: Long,
+        beginTimeAdd: String
+    ) {
+
+        viewModelScope.launch {
+            repository.beginTimeAdded(
+                watchId = watchId,
+                beginTimeAdd = beginTimeAdd
             )
         }
     }

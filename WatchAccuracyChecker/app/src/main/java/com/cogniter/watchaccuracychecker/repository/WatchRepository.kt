@@ -1,7 +1,6 @@
 package com.cogniter.watchaccuracychecker.repository
 
 import androidx.lifecycle.LiveData
-import androidx.room.Query
 import com.cogniter.watchaccuracychecker.database.WatchDao
 import com.cogniter.watchaccuracychecker.database.entity.*
 import kotlinx.coroutines.flow.Flow
@@ -48,9 +47,17 @@ class WatchRepository(
     suspend fun updateRunningState(
         watchId: Long,
         isRunning: Boolean,
-        startTime: Long?
+        startTime: Long?,
+        beginTime: String? = null
     ) {
-        dao.updateRunningState(watchId, isRunning, startTime)
+        dao.updateRunningState(watchId, isRunning, startTime,beginTime)
+    }
+
+    suspend fun beginTimeAdded(
+        watchId: Long,
+        beginTimeAdd: String,
+    ) {
+        dao.beginTimeAdded(watchId, beginTimeAdd)
     }
 
     suspend fun getWatchById(watchId: Long): WatchEntity? =
